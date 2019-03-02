@@ -35,53 +35,54 @@ const styles = {
     }
 };
 
-const leftContent = 
-    <View style={styles.containerClear} >
-        <Icon 
-            name='ios-close-circle' 
-            type='ionicon' 
-            color='white'
-            containerStyle={styles.iconStyle} 
-        />
-    </View>
-;
-
-const rightButtons = [
-    <TouchableOpacity 
-        style={styles.containerDecrease} 
-        activeOpacity={1}
-        onPress={() => console.log('Decrease')}
-    >
-        <Icon 
-            name='ios-remove-circle' 
-            type='ionicon' 
-            color='white' 
-            containerStyle={styles.iconStyle} 
-        />
-    </TouchableOpacity>,
-    <TouchableOpacity 
-        style={styles.containerIncrease} 
-        activeOpacity={1}
-        onPress={() => console.log('Increase')}
-    >
-        <Icon 
-            name='ios-add-circle' 
-            type='ionicon' 
-            color='white' 
-            containerStyle={styles.iconStyle} 
-        />
-    </TouchableOpacity>
-];
-
 class OrderList extends React.Component {
 
     render() {
-        const { name, amount, price, total, } = this.props;
+        const { name, amount, price, total, onDecrease, onIncrease, onClear } = this.props;
+        const leftContent = 
+            <View style={styles.containerClear} >
+                <Icon 
+                    name='ios-close-circle' 
+                    type='ionicon' 
+                    color='white'
+                    containerStyle={styles.iconStyle} 
+                />
+            </View>
+        ;
+
+        const rightButtons = [
+            <TouchableOpacity 
+                style={styles.containerDecrease} 
+                activeOpacity={1}
+                onPress={onDecrease}
+            >
+                <Icon 
+                    name='ios-remove-circle' 
+                    type='ionicon' 
+                    color='white' 
+                    containerStyle={styles.iconStyle} 
+                />
+            </TouchableOpacity>,
+            <TouchableOpacity 
+                style={styles.containerIncrease} 
+                activeOpacity={1}
+                onPress={onIncrease}
+            >
+                <Icon 
+                    name='ios-add-circle' 
+                    type='ionicon' 
+                    color='white' 
+                    containerStyle={styles.iconStyle} 
+                />
+            </TouchableOpacity>
+        ];
+
         return (
             <Swipeable 
                 leftContent={leftContent} 
                 rightButtons={rightButtons}
-                onLeftActionRelease={() => console.log('release')}
+                onLeftActionRelease={onClear}
+                leftActionActivationDistance={200}
             >
                 <Row style={styles.containerStyle}>
                     <Text style={{ flex: 2, ...styles.textStyle }} numberOfLines={1}>{name}</Text>
