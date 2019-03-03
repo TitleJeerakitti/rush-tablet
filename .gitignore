@@ -6,3 +6,4 @@ npm-debug.*
 *.key
 *.mobileprovision
 src/images
+src/test-json-api
