@@ -8,3 +8,4 @@ export * from './Center';
 export * from './Input';
 export * from './RowCategoryItem';
 export * from './SideMenuItem';
+export * from './SeleteItem';

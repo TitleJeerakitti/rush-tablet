@@ -10,7 +10,7 @@ class LoginForm extends React.Component {
         this.state = {
             email: '',
             password: '',
-        }
+        };
     }
 
     render() {
@@ -22,7 +22,7 @@ class LoginForm extends React.Component {
             inputStyle, 
             buttonStyle 
         } = styles;
-        console.log(this.state.email + " " + this.state.password)
+        console.log(this.state.email, ' ', this.state.password);
         return (
             <AuthBackground>
                 <Row style={{ ...centerStyle, width: '80%' }}>
@@ -97,6 +97,6 @@ const styles = {
         marginTop: 40, 
         alignItems: 'center',
     }
-}
+};
 
 export default LoginForm;
