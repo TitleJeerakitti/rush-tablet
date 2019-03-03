@@ -9,7 +9,7 @@ class IconTab extends React.Component {
             <Icon 
                 name={iconName} 
                 type='material-community' 
-                size={30} 
+                // size={30} 
                 color={focused ? ORANGE : 'black'} 
             />
         );
