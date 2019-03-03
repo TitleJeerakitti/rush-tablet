@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableWithoutFeedback, Switch, Text } from 'react-native';
+import { TouchableWithoutFeedback, Switch, } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { Icon } from 'react-native-elements';
 import NavContainer from './NavContainer';
@@ -11,7 +11,7 @@ class NavHamberger extends React.Component {
         super(props);
         this.state = {
             isOpen: false,
-        }
+        };
     }
 
     render() {
