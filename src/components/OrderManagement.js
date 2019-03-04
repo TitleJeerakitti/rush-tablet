@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Calendar } from 'react-native-calendars';
-import { Row, SeleteItem, } from './common';
+import { Row, SeleteItem, OrderItem, } from './common';
 import { ORANGE, DARK_ORANGE, DARK_RED, YELLOW, GRAY, LIGHT_GRAY } from '../config';
 
 const config = {
@@ -105,27 +105,12 @@ class OrderManagement extends React.Component {
                 </View>
                 <View style={{ flex: 2, }}>
                     <ScrollView style={{ flex: 1 }}>
-                        <View style={{ marginTop: 10, marginHorizontal: 10, backgroundColor: 'white', borderRadius: 10 }}>
-                            <Row>
-                                <View style={{ padding: 10, backgroundColor: DARK_RED, borderTopLeftRadius: 10, borderBottomLeftRadius: 10, width: 100, }}>
-                                    <Icon name='home' color='white' size={30} />
-                                    <Text style={{ color: 'white', textAlign: 'center', }} numberOfLines={1}>Payment</Text>
-                                </View>
-                                <View style={{ flex: 1, padding: 10, }}>
-                                    <Row>
-                                        <Row style={{ alignItems: 'center' }}>
-                                            <Icon name='basket' type='material-community' />
-                                            <Text>12345678</Text>
-                                        </Row>
-                                        <Row style={{ alignItems: 'center' }}>
-                                            <Icon name='account-group' type='material-community' />
-                                            <Text>A 001</Text>
-                                        </Row>
-                                    </Row>
-                                    
-                                </View>
-                            </Row>
-                        </View>
+                        <OrderItem status={0} />
+                        <OrderItem status={1} />
+                        <OrderItem status={2} />
+                        <OrderItem status={3} />
+                        <OrderItem status={4} />
+                        <OrderItem status={5} />
                     </ScrollView>
                 </View>
             </Row>

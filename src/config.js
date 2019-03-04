@@ -8,3 +8,5 @@ export const LIGHT_RED = '#EF4036';
 export const DARK_ORANGE = '#FF7E2F';
 export const GRAY = '#666';
 export const LIGHT_GRAY = '#F6F6F6';
+export const BLUE = '#004BD9';
+export const VIOLET = '#7132B1';
