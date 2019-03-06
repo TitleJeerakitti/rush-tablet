@@ -14,16 +14,19 @@ class OrderItem extends React.Component {
                     description: 'PENDING',
                     source: require('../../images/order-food.png'),
                     color: ORANGE,
+                    extraButton: 'CANCEL',
                 },
                 {
                     description: 'COOKING',
                     source: require('../../images/stew.png'),
                     color: BLUE,
+                    extraButton: 'CALL',
                 },
                 {
                     description: 'WAITING',
                     source: require('../../images/serve.png'),
                     color: VIOLET,
+                    extraButton: 'PAY',
                 },
                 {
                     description: 'CANCEL',
@@ -40,8 +43,41 @@ class OrderItem extends React.Component {
                     source: require('../../images/warning.png'),
                     color: '#000',
                 },
-            ]
+            ],
+            iconHeaderSize: 24,
+            iconDateSize: 14,
         };
+    }
+
+    renderButton() {
+        const { edgeContainer, textButton, flexCenter, } = styles;
+        return (
+            <View style={edgeContainer}>
+                <Button
+                    containerStyle={{ ...flexCenter, backgroundColor: YELLOW, }}
+                    textStyle={textButton}
+                    onPress={() => console.log('more')}
+                >
+                    MORE
+                </Button>
+                { this.renderExtraButton() }
+            </View>
+        );
+    }
+
+    renderExtraButton() {
+        const { textButton, flexCenter, } = styles;
+        if (this.state.data[this.props.status].extraButton) {
+            return (
+                <Button
+                    containerStyle={{ ...flexCenter, backgroundColor: DARK_RED, }}
+                    textStyle={textButton}
+                    onPress={() => console.log(this.state.data[this.props.status].extraButton)}
+                >
+                    {this.state.data[this.props.status].extraButton}
+                </Button>
+            );
+        }
     }
 
     render() {
@@ -53,11 +89,12 @@ class OrderItem extends React.Component {
             textTopic, 
             textTiny, 
             textMoney,
-            textButton,
-            flexCenter,
         } = styles;
-        const { data, } = this.state;
-        const { status, } = this.props;
+        const { data, iconDateSize, iconHeaderSize, } = this.state;
+        const { 
+            status,
+            order,
+        } = this.props;
         return (
             <View style={container}>
                 <Row style={{ borderRadius: 10, overflow: 'hidden', }}>
@@ -74,17 +111,17 @@ class OrderItem extends React.Component {
                                 <Icon 
                                     name='clipboard-text-outline' 
                                     type='material-community' 
-                                    size={24} 
+                                    size={iconHeaderSize} 
                                 />
-                                <Text style={textTopic}>12345678</Text>
+                                <Text style={textTopic}>{order.order_id}</Text>
                             </Row>
                             <Row style={{ alignItems: 'center', marginLeft: 10, }}>
                                 <Icon 
                                     name='account-group' 
                                     type='material-community' 
-                                    size={24} 
+                                    size={iconHeaderSize} 
                                 />
-                                <Text style={textTopic}>A 001</Text>
+                                <Text style={textTopic}>{order.queue_number}</Text>
                             </Row>
                         </Row>
                         <Row>
@@ -92,28 +129,28 @@ class OrderItem extends React.Component {
                                 <Icon 
                                     name='calendar-clock' 
                                     type='material-community' 
-                                    size={14} 
+                                    size={iconDateSize} 
                                     color={GRAY} 
                                 />
-                                <Text style={textTiny}>09-09-2018</Text>
+                                <Text style={textTiny}>{order.date}</Text>
                             </Row>
                             <Row style={{ alignItems: 'center', marginLeft: 10, }}>
                                 <Icon 
                                     name='clock-outline' 
                                     type='material-community' 
-                                    size={14} 
+                                    size={iconDateSize} 
                                     color={GRAY} 
                                 />
-                                <Text style={textTiny}>12:00 PM</Text>
+                                <Text style={textTiny}>{order.time}</Text>
                             </Row>
                             <Row style={{ alignItems: 'center', marginLeft: 10, }}>
                                 <Icon 
                                     name='account-outline' 
                                     type='material-community' 
-                                    size={14} 
+                                    size={iconDateSize} 
                                     color={GRAY} 
                                 />
-                                <Text style={textTiny}>00001234</Text>
+                                <Text style={textTiny}>{order.user_id}</Text>
                             </Row>
                         </Row>
                         <Row style={{ marginTop: 5, }}>
@@ -124,24 +161,11 @@ class OrderItem extends React.Component {
                                     size={18} 
                                     color={DARK_RED} 
                                 />
-                                <Text style={textMoney}>1240.00.-</Text>
+                                <Text style={textMoney}>{order.total.toFixed(2)}.-</Text>
                             </Row>
                         </Row>
                     </View>
-                    <View style={edgeContainer}>
-                        <Button
-                            containerStyle={{ ...flexCenter, backgroundColor: YELLOW, }}
-                            textStyle={textButton}
-                        >
-                            See More
-                        </Button>
-                        <Button
-                            containerStyle={{ ...flexCenter, backgroundColor: DARK_RED, }}
-                            textStyle={textButton}
-                        >
-                            Cancel
-                        </Button>
-                    </View>
+                    {this.renderButton()}
                 </Row>
             </View>
         );

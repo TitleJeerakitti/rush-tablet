@@ -1,14 +1,30 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { View, Text, TouchableOpacity, ScrollView, } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { Row, SeleteItem, OrderItem, } from './common';
-import { ORANGE, DARK_ORANGE, DARK_RED, YELLOW, GRAY, LIGHT_GRAY } from '../config';
+import { ORANGE, DARK_ORANGE, DARK_RED, } from '../config';
 
 const config = {
-    online: 'Online',
-    walkIn: 'WalkIn',
-    inProgress: 'InProgress',
+    data: [
+        {
+            status: 'Online Order',
+            url: 'online_order',
+            iconName: 'cellphone-link',
+            iconType: 'material-community',
+        },
+        {
+            status: 'Walk-In Order',
+            url: 'walkin_order',
+            iconName: 'restaurant-menu',
+            iconType: 'material',
+        },
+        {
+            status: 'In Progress',
+            url: 'inprogress_order',
+            iconName: 'calendar-clock',
+            iconType: 'material-community',
+        },
+    ]
 };
 
 class OrderManagement extends React.Component {
@@ -18,8 +34,34 @@ class OrderManagement extends React.Component {
             visible: false,
             endDate: this.formatDate(new Date()),
             startDate: this.formatDate(new Date()),
-            currentType: config.online,
+            currentType: config.data[0].status,
+            orders: [],
         };
+    }
+
+    componentWillMount() {
+        this.getOrderAPI(config.data[0].url);
+    }
+
+    async getOrderAPI(url) {
+        try {
+            const response = await fetch(`http://localhost:3000/${url}`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                }
+            });
+            const resposneData = await response.json();
+            await this.setState({ orders: resposneData });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    changeType(type, url) {
+        if (this.state.currentType !== type) {
+            this.getOrderAPI(url);
+            this.setState({ currentType: type });
+        }
     }
 
     formatDate(date) {
@@ -33,6 +75,19 @@ class OrderManagement extends React.Component {
             canRight: date.year < new Date().getFullYear() || 
                 (date.month < new Date().getMonth() + 1 && date.year <= new Date().getFullYear()),
         });
+    }
+
+    renderSelectItem() {
+        return config.data.map((value, index) => 
+            <SeleteItem 
+                key={index}
+                iconName={value.iconName}
+                iconType={value.iconType}
+                text={value.status}
+                selected={this.state.currentType === value.status}
+                onPress={() => this.changeType(value.status, value.url)}
+            />
+        );
     }
 
     renderCalendar() {
@@ -66,6 +121,18 @@ class OrderManagement extends React.Component {
         }
     }
 
+    renderOrderList() {
+        if (this.state.orders.length > 0) {
+            return this.state.orders.map((order) => 
+                <OrderItem 
+                    key={order.order_id}
+                    status={order.status - 1}
+                    order={order}
+                />
+            );
+        }
+    }
+
     render() {
         const { dateContainer, dateTextStyle, leftContainer, } = styles;
         return (
@@ -80,37 +147,12 @@ class OrderManagement extends React.Component {
                     </TouchableOpacity>
                     {this.renderCalendar()}
                     <View style={{ marginTop: 10, }}>
-                        <SeleteItem 
-                            iconName='cellphone-link'
-                            iconType='material-community'
-                            text='Online Order'
-                            selected={this.state.currentType === config.online}
-                            onPress={() => this.setState({ currentType: config.online })}
-                        />
-                        <SeleteItem 
-                            iconName='restaurant-menu'
-                            iconType='material'
-                            text='Walk-In Order'
-                            selected={this.state.currentType === config.walkIn}
-                            onPress={() => this.setState({ currentType: config.walkIn })}
-                        />
-                        <SeleteItem 
-                            iconName='calendar-clock'
-                            iconType='material-community'
-                            text='In Progress'
-                            selected={this.state.currentType === config.inProgress}
-                            onPress={() => this.setState({ currentType: config.inProgress })}
-                        />
+                        {this.renderSelectItem()}
                     </View>
                 </View>
                 <View style={{ flex: 2, }}>
                     <ScrollView style={{ flex: 1 }}>
-                        <OrderItem status={0} />
-                        <OrderItem status={1} />
-                        <OrderItem status={2} />
-                        <OrderItem status={3} />
-                        <OrderItem status={4} />
-                        <OrderItem status={5} />
+                        {this.renderOrderList()}
                     </ScrollView>
                 </View>
             </Row>
