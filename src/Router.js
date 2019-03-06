@@ -6,6 +6,7 @@ import { NavHamberger, IconTab } from './components/common';
 import LoginForm from './components/LoginForm';
 import MainMenu from './components/MainMenu';
 import SideMenu from './components/SideMenu';
+import OrderManagement from './components/OrderManagement';
 
 class RouterComponent extends React.Component {
     render() {
@@ -17,7 +18,7 @@ class RouterComponent extends React.Component {
                     <Drawer key='app' contentComponent={SideMenu} initial>
                         <Scene key='container' hideNavBar>
                             <Tabs key='tabber' tabBarStyle={tabBarStyle} showLabel={false}>
-                                <Scene key='main' icon={IconTab} iconName='home' initial>
+                                <Scene key='main' icon={IconTab} iconName='home'>
                                     <Scene 
                                         key='mainHome' 
                                         component={MainMenu} 
@@ -26,11 +27,11 @@ class RouterComponent extends React.Component {
                                         initial
                                     />
                                 </Scene>
-                                <Scene key='order' icon={IconTab} iconName='shopping'>
+                                <Scene key='order' icon={IconTab} iconName='shopping' initial>
                                     <Scene 
                                         key='mainOrder' 
-                                        component={MainMenu} 
-                                        title='Restaurant' 
+                                        component={OrderManagement} 
+                                        title='Order Management' 
                                         navBar={NavHamberger}
                                         initial
                                     />

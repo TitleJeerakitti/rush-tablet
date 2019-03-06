@@ -18,6 +18,7 @@ class SideMenuItem extends React.Component {
                 style={this.isCurrentScene(targetScene) ? 
                     { ...buttonStyle, ...buttonSelect } : buttonStyle}
                 onPress={onPress}
+                activeOpacity={1}
             >
                 <Row style={{ alignItems: 'center', }}>
                     <Icon 

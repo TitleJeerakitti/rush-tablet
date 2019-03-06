@@ -12,6 +12,6 @@ const Input = ({ style, placeholder, value, onChangeText }) => {
             autoCorrect={false}
         />
     );
-}
+};
 
 export { Input };
