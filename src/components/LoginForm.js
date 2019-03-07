@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { AuthBackground, Row, Center, Input } from './common';
-import { DARK_RED } from '../config';
+import { DARK_RED } from '../colors';
 
 class LoginForm extends React.Component {
     constructor(props) {

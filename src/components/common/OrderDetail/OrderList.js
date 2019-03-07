@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, View } from 'react-native';
 import Swipeable from 'react-native-swipeable';
 import { Icon } from 'react-native-elements';
 import { Row } from '../Row';
-import { DARK_RED, ORANGE, GREEN } from '../../../config';
+import { DARK_RED, ORANGE, GREEN } from '../../../colors';
 
 const styles = {
     containerClear: {
@@ -39,7 +39,7 @@ class OrderList extends React.Component {
 
     render() {
         const { name, amount, price, total, onDecrease, onIncrease, onClear } = this.props;
-        const leftContent = 
+        const leftContent = (
             <View style={styles.containerClear} >
                 <Icon 
                     name='ios-close-circle' 
@@ -48,7 +48,7 @@ class OrderList extends React.Component {
                     containerStyle={styles.iconStyle} 
                 />
             </View>
-        ;
+        );
 
         const rightButtons = [
             <TouchableOpacity 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StatusBar } from 'react-native';
 import { LinearGradient, Constants } from 'expo';
-import { DARK_RED, DARK_ORANGE } from '../../../config';
+import { DARK_RED, DARK_ORANGE } from '../../../colors';
 
 const NavContainer = ({ children }) => {
     const { containerStyle, navbarStyle } = styles;

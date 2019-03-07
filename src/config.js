@@ -1,12 +1,7 @@
-export const DARK_RED = '#FF220D';
-export const ORANGE = '#FF6000';
-export const GREEN = '#00743E';
-export const YELLOW = '#FFA80D';
-export const LIGHT_YELLOW = '#F9B15A';
-export const EGG = '#FEF5EA';
-export const LIGHT_RED = '#EF4036';
-export const DARK_ORANGE = '#FF7E2F';
-export const GRAY = '#666';
-export const LIGHT_GRAY = '#F6F6F6';
-export const BLUE = '#004BD9';
-export const VIOLET = '#7132B1';
+export const SERVER = 'http://localhost:3000/';
+export const ONLINE_QUEUE = 'online_queue';
+export const WALKIN_QUEUE = 'walkin_queue';
+
+export const GET_API_HEADERS = {
+    'Cache-Control': 'no-cache',
+};

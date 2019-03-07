@@ -1,7 +1,15 @@
 import React from 'react';
-import { View, Text, ScrollView, } from 'react-native';
-import { Row, QueueCard, QueueList, ContainerBorderRadiusTop } from './common';
-import { ORANGE, YELLOW, } from '../config';
+import { View, Text, } from 'react-native';
+import { 
+    Row, 
+    QueueCard, 
+    QueueList, 
+    ContainerBorderRadiusTop, 
+    LoadingImage, 
+    EmptyView 
+} from './common';
+import { ORANGE, YELLOW, BLACK_PINK, PINK, } from '../colors';
+import { GET_API_HEADERS, SERVER, ONLINE_QUEUE, WALKIN_QUEUE } from '../config';
 
 class QueueManagement extends React.Component {
     constructor(props) {
@@ -9,65 +17,55 @@ class QueueManagement extends React.Component {
         this.state = {
             onlineOrder: [],
             walkinOrder: [],
+            loading: true,
         };
     }
 
     async componentDidMount() {
         const [online, walkin] = await Promise.all([
-            this.fetchDataAPI('online_queue'),
-            this.fetchDataAPI('walkin_queue'),
+            this.fetchDataAPI(ONLINE_QUEUE),
+            this.fetchDataAPI(WALKIN_QUEUE),
         ]);
         await this.setState({
             onlineOrder: online,
             walkinOrder: walkin,
+            loading: false,
         });
     }
 
     async fetchDataAPI(endpoint) {
         try {
-            const response = await fetch(`http://localhost:3000/${endpoint}`, {
-                headers: {
-                    'Cache-Control': 'no-cache',
-                },
+            const response = await fetch(`${SERVER}${endpoint}`, {
+                headers: GET_API_HEADERS,
             });
             const responseData = await response.json();
             return responseData;
         } catch (error) {
             console.log(error);
+            return [];
         }
     }
 
-    renderOnlineList() {
-        if (this.state.onlineOrder.length > 0) {
-            return this.state.onlineOrder.map(order =>
-                <QueueList 
-                    key={order.order_id}
-                    queue={order.queue_number} 
-                    headerColor={ORANGE}
-                    buttonColor={YELLOW}
-                    online
-                />
-            );
-        }
-    }
-
-    renderWalkinList() {
-        if (this.state.walkinOrder.length > 0) {
-            return this.state.walkinOrder.map(order =>
-                <QueueList 
-                    key={order.order_id}
-                    queue={order.queue_number} 
-                    headerColor='#D01B60'
-                    buttonColor='#FF2277'
-                />
-            );
-        }
+    renderQueueList(items, headerColor, buttonColor, onGrab) {
+        return items.map(item =>
+            <QueueList 
+                key={item.order_id}
+                queue={item.queue_number} 
+                headerColor={headerColor}
+                buttonColor={buttonColor}
+                onMore={() => console.log('MORE of ', item.order_id)}
+                onGrab={() => console.log(onGrab)}
+            />
+        );
     }
 
     render() {
-        const { onlineOrder, walkinOrder } = this.state;
+        const { onlineOrder, walkinOrder, loading, } = this.state;
+        if (loading) {
+            return <LoadingImage />;
+        }
         return (
-            <Row style={{ flex: 1, backgroundColor: '#F0F0F0', }}>
+            <Row style={{ flex: 1, }}>
                 <View style={{ flex: 1, }}>
                     <QueueCard 
                         header='Online Queue'
@@ -79,25 +77,32 @@ class QueueManagement extends React.Component {
                     />
                     <ContainerBorderRadiusTop>
                         <Text style={styles.textDescription}>Passed Queue</Text>
-                        <ScrollView style={{ flex: 1, }}>
-                            {this.renderOnlineList()}
-                        </ScrollView>
+                        <EmptyView
+                            emptyText='EMPTY QUEUE'
+                            condition={onlineOrder.length > 0}
+                        >
+                            {this.renderQueueList(onlineOrder, ORANGE, YELLOW, ONLINE_QUEUE)}
+                        </EmptyView>
                     </ContainerBorderRadiusTop>
                 </View>
                 <View style={{ flex: 1, }}>
                     <QueueCard 
-                        header='Walk-In Order'
+                        header='Walk-In Queue'
                         queue={walkinOrder.length > 0 ? walkinOrder[0].queue_number : 'LOADING'}
-                        colors={['#D01B60', '#FF2277']}
-                        buttonColor='#FF2277'
+                        colors={[BLACK_PINK, PINK]}
+                        buttonColor={PINK}
                         onAgain={() => console.log('Again')}
                         onNext={() => console.log('Next')}
                     />
                     <ContainerBorderRadiusTop>
                         <Text style={styles.textDescription}>Passed Queue</Text>
-                        <ScrollView style={{ flex: 1, }}>
-                            {this.renderWalkinList()}
-                        </ScrollView>
+                        <EmptyView
+                            emptyText='EMPTY QUEUE'
+                            condition={walkinOrder.length > 0}
+                        >
+                            {this.renderQueueList(
+                                walkinOrder, BLACK_PINK, PINK, WALKIN_QUEUE)}
+                        </EmptyView>
                     </ContainerBorderRadiusTop>
                 </View>
             </Row>

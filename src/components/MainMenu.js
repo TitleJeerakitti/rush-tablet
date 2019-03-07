@@ -10,7 +10,7 @@ import {
     MenuItem,
     Center,
 } from './common';
-import { EGG, } from '../config';
+import { EGG, } from '../colors';
 
 class MainMenu extends React.Component {
     constructor(props) {

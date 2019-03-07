@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Row } from './Row';
-import { GRAY, ORANGE, LIGHT_GRAY } from '../../config';
+import { GRAY, ORANGE, LIGHT_GRAY } from '../../colors';
 
 class SeleteItem extends React.Component {
     render() {

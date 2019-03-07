@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
-import { YELLOW, } from '../../config';
+import { YELLOW, } from '../../colors';
 
 const RowCategoryItem = ({ text, onPress, selected }) => {
     return (

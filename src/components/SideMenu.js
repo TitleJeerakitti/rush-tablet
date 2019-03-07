@@ -3,7 +3,7 @@ import { View, Text, Dimensions, Image, TouchableOpacity, } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { Constants, LinearGradient, } from 'expo';
 import { SideMenuItem, } from './common';
-import { DARK_ORANGE, YELLOW, } from '../config';
+import { DARK_ORANGE, YELLOW, } from '../colors';
 
 const config = {
     bannerHeight: Dimensions.get('window').height * 0.15,

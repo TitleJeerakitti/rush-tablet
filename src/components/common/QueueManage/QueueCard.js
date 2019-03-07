@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, } from 'react-native';
 import { LinearGradient, } from 'expo';
 import { Row } from '../Row';
-import { GRAY } from '../../../config';
+import { GRAY } from '../../../colors';
 
 const QueueCard = ({ colors, buttonColor, queue, onNext, onAgain, header, }) => {
     const { 

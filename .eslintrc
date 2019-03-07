@@ -4,5 +4,8 @@
         "arrow-body-style": 0,
         "global-require": 0,
         "one-var": 0
+    },
+    "globals": { 
+        "fetch": false
     }
 }

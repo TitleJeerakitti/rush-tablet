@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Row } from '../Row';
-import { ORANGE, DARK_RED, GREEN } from '../../../config';
+import { ORANGE, DARK_RED, GREEN } from '../../../colors';
 
 class OrderConfirmation extends React.Component {
     render() {

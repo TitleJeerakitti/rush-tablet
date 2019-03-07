@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, Image, } from 'react-native';
 import { Icon, } from 'react-native-elements';
 import { Row, } from './Row';
-import { DARK_RED, GRAY, YELLOW, ORANGE, GREEN, BLUE, VIOLET, } from '../../config';
+import { DARK_RED, GRAY, YELLOW, ORANGE, GREEN, BLUE, VIOLET, } from '../../colors';
 import { Button } from './Button';
 
 class OrderItem extends React.Component {

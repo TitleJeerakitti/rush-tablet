@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, } from 'react-native';
 import { Row } from '../Row';
-import { GRAY } from '../../../config';
+import { GRAY } from '../../../colors';
 
 class QueueList extends React.Component {
     constructor(props) {
@@ -21,10 +21,8 @@ class QueueList extends React.Component {
         return;
     }
 
-    renderExtraButton
-
     render() {
-        const { headerColor, buttonColor, online, } = this.props;
+        const { headerColor, buttonColor, onMore, onGrab } = this.props;
         const { type, number } = this.state;
         const { container, queueType, queueText, } = styles;
         return (
@@ -35,12 +33,18 @@ class QueueList extends React.Component {
                 <View style={{ padding: 10, flex: 1, }}>
                     <Text style={queueText}>{number}</Text>
                 </View>
-                <TouchableOpacity style={{ padding: 10, }}>
+                <TouchableOpacity 
+                    style={{ padding: 10, }}
+                    onPress={onMore}
+                >
                     <Text style={{ fontWeight: 'bold', color: GRAY, }}>MORE</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ padding: 10, marginRight: 5, }}>
+                <TouchableOpacity 
+                    onPress={onGrab}
+                    style={{ padding: 10, marginRight: 5, }}
+                >
                     <Text style={{ fontWeight: 'bold', color: buttonColor, }}>
-                        { online ? 'PAY' : 'GRAB' }
+                        GRAB
                     </Text>
                 </TouchableOpacity>
             </Row>

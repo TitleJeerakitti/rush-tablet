@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { Icon } from 'react-native-elements';
 import { Row } from './Row';
-import { ORANGE, GRAY, LIGHT_GRAY, } from '../../config';
+import { ORANGE, GRAY, LIGHT_GRAY, } from '../../colors';
 
 class SideMenuItem extends React.Component {
     isCurrentScene(text) {

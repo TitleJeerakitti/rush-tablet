@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Row } from '../Row';
-import { DARK_RED } from '../../../config';
+import { DARK_RED } from '../../../colors';
 
 const MenuItem = ({ children, onPress }) => {
     return (

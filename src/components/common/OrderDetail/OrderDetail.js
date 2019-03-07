@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { Row } from '../Row';
-import { LIGHT_YELLOW } from '../../../config';
+import { LIGHT_YELLOW } from '../../../colors';
 
 const OrderDetail = () => {
     const { containerStyle, textStyle } = styles;
