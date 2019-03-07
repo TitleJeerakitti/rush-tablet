@@ -8,6 +8,7 @@ import MainMenu from './components/MainMenu';
 import SideMenu from './components/SideMenu';
 import OrderManagement from './components/OrderManagement';
 import QueueManagement from './components/QueueManagement';
+import MenuManagement from './components/MenuManagement';
 
 class RouterComponent extends React.Component {
     render() {
@@ -37,7 +38,7 @@ class RouterComponent extends React.Component {
                                         initial
                                     />
                                 </Scene>
-                                <Scene key='queue' icon={IconTab} iconName='account-group' initial>
+                                <Scene key='queue' icon={IconTab} iconName='account-group'>
                                     <Scene 
                                         key='mainQueue' 
                                         component={QueueManagement} 
@@ -46,10 +47,10 @@ class RouterComponent extends React.Component {
                                         initial
                                     />
                                 </Scene>
-                                <Scene key='menu' icon={IconTab} iconName='food'>
+                                <Scene key='menu' icon={IconTab} iconName='food' initial>
                                     <Scene 
                                         key='mainMenu' 
-                                        component={MainMenu} 
+                                        component={MenuManagement} 
                                         title='Restaurant' 
                                         navBar={NavHamberger}
                                         initial
