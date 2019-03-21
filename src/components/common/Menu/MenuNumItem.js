@@ -2,33 +2,42 @@ import React from 'react';
 import { Text, View, TouchableOpacity, } from 'react-native';
 import { Icon, } from 'react-native-elements';
 import { Row } from '../Row';
-import { LIGHT_RED, BLACK_RED } from '../../../colors';
 
-const MenuNumItem = ({ number, text, selected, onPress }) => {
+const MenuNumItem = ({ number, text, selected, onPress, color, onIconPress, }) => {
     return (
         <TouchableOpacity 
             style={{ 
                 ...styles.container, 
-                backgroundColor: selected ? LIGHT_RED : '#FFF',
+                backgroundColor: selected ? color : '#FFF',
             }}
+            activeOpacity={1}
+            onPress={onPress}
         >
             <Row style={styles.overflow}>
-                <View style={styles.numberContainer}>
+                <View 
+                    style={{ 
+                        ...styles.numberContainer, 
+                        backgroundColor: color, 
+                    }}
+                >
                     <Text style={styles.numberStyle}>{number}</Text>
                 </View>
-                <Text 
-                    style={{ 
-                        ...styles.textStyle, 
-                        color: selected ? '#FFF' : '#000', 
-                    }} 
-                    numberOfLines={1}
-                >
-                    {text}
-                </Text>
+                <View style={styles.textContainer}>
+                    <Text 
+                        style={{ 
+                            ...styles.textStyle,
+                            fontWeight: selected ? 'bold' : 'normal',
+                            color: selected ? '#FFF' : '#000', 
+                        }} 
+                        numberOfLines={1}
+                    >
+                        {text}
+                    </Text>
+                </View>
                 <Icon 
                     name='settings' 
                     containerStyle={{ padding: 10, }} 
-                    onPress={onPress} 
+                    onPress={onIconPress} 
                     color={selected ? '#FFF' : '#000'}
                 />
             </Row>
@@ -52,7 +61,6 @@ const styles = {
         overflow: 'hidden',
     },
     numberContainer: {
-        backgroundColor: BLACK_RED, 
         padding: 10, 
         width: 45,
     },
@@ -62,10 +70,13 @@ const styles = {
         textAlign: 'center', 
         fontSize: 20,
     },
-    textStyle: { 
+    textContainer: { 
         padding: 10, 
         flex: 1, 
-        fontSize: 16, 
+        justifyContent: 'center',
+    },
+    textStyle: {
+        fontSize: 16,
     },
 };
 
