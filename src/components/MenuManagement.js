@@ -6,6 +6,7 @@ import { RestaurantPopup } from './common/Popup';
 
 const CURRENT_MAIN = 'CURRENT_MAIN';
 const CURRENT_SUB = 'CURRENT_SUB';
+const MENU_SELECT = 'MENU_SELECT';
 
 class MenuManagement extends React.Component {
     constructor(props) {
@@ -13,9 +14,11 @@ class MenuManagement extends React.Component {
         this.state = {
             currentMain: null,
             currentSub: null,
+            currentMenu: undefined,
             mainCategories: [], 
             subCategories: [], 
             menus: [],
+            visible: false,
         };
     }
 
@@ -33,7 +36,7 @@ class MenuManagement extends React.Component {
         });
     }
 
-    setSelect(condition, index) {
+    setSelect(condition, index, item) {
         switch (condition) {
             case CURRENT_MAIN: 
                 if (this.state.currentMain === index) {
@@ -48,6 +51,8 @@ class MenuManagement extends React.Component {
                     return;
                 }
                 return this.setState({ currentSub: index });
+            case MENU_SELECT:
+                return this.setState({ visible: true, currentMenu: item, });
             default: 
                 return;
         }   
@@ -73,15 +78,29 @@ class MenuManagement extends React.Component {
                 text={item.name}
                 number={index + 1}
                 color={color}
-                onPress={() => this.setSelect(condition, index)}
+                onPress={() => this.setSelect(condition, index, item)}
                 selected={isSelect === index}
             />
         );
     }
 
+    renderPopup() {
+        if (this.state.currentMenu !== undefined) {
+            // console.log(this.state.currentMenu)
+            return (
+                <RestaurantPopup 
+                    visible={this.state.visible}
+                    menu={this.state.currentMenu}
+                    onCancel={() => this.setState({ visible: false, currentMenu: undefined, })}
+                    onSave={() => this.setState({ visible: false, })}
+                />
+            );
+        }
+    }
+
     render() {
         const { mainCategories, subCategories, currentMain, currentSub, menus } = this.state;
-
+        // console.log(this.state.currentMenu)
         return (
             <Row style={{ flex: 1, }}>
                 <MenuManageContainer
@@ -123,10 +142,11 @@ class MenuManagement extends React.Component {
                     {this.renderMenuItem(
                         currentSub !== null ? menus[currentMain][currentSub] : undefined, 
                         ORANGE,
+                        MENU_SELECT,
                     )}
                     <AddButton />
                 </MenuManageContainer>
-                <RestaurantPopup visible />
+                {this.renderPopup()}
             </Row>
         );
     }

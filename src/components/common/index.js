@@ -16,3 +16,5 @@ export * from './ContainerBorderRadiusTop';
 export * from './LoadingImage';
 export * from './EmptyView';
 export * from './LinearHeader';
+export * from './Space';
+export * from './CheckBox';

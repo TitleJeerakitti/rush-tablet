@@ -3,7 +3,8 @@
     "rules": {
         "arrow-body-style": 0,
         "global-require": 0,
-        "one-var": 0
+        "one-var": 0,
+        "react/no-did-update-set-state": 0
     },
     "globals": { 
         "fetch": false
