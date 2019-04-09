@@ -16,8 +16,10 @@ class RouterComponent extends React.Component {
         return (
             <Router>
                 <Scene key='root' hideNavBar>
-                    <Router key='login' component={LoginForm} />
-                    <Drawer key='app' contentComponent={SideMenu} initial>
+                    <Scene key='auth' initial hideNavBar>
+                        <Scene key='login' component={LoginForm} initial />
+                    </Scene>
+                    <Drawer key='app' contentComponent={SideMenu}>
                         <Scene key='container' hideNavBar>
                             <Tabs key='tabber' tabBarStyle={tabBarStyle} showLabel={false}>
                                 <Scene key='main' icon={IconTab} iconName='home'>
@@ -47,7 +49,7 @@ class RouterComponent extends React.Component {
                                         initial
                                     />
                                 </Scene>
-                                <Scene key='menu' icon={IconTab} iconName='food' initial>
+                                <Scene key='menu' icon={IconTab} iconName='food'>
                                     <Scene 
                                         key='mainMenu' 
                                         component={MenuManagement} 

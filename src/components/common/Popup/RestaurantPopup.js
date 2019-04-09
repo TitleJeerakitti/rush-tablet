@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Text, View, Image, TouchableOpacity, } from 'react-native';
+import { Modal, Text, View, Image, TouchableOpacity, Alert, } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Constants, } from 'expo';
 import { Row } from '../Row';
@@ -47,6 +47,9 @@ class RestaurantPopup extends React.Component {
                 animationType='slide'
                 transparent
                 visible={visible}
+                onRequestClose={() => {
+                    Alert.alert('Modal has been closed.');
+                }}
             >
                 <Center style={container}>
                     <Row style={popupContainer}>

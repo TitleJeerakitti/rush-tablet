@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, ScrollView, Text } from 'react-native';
+import { View, ScrollView, Text, FlatList, } from 'react-native';
+import { connect } from 'react-redux';
 import { 
     Row, 
     OrderDetail, 
@@ -11,10 +12,12 @@ import {
     Center,
 } from './common';
 import { EGG, } from '../colors';
+import { SERVER, GET_MAIN_MENU } from '../config';
 
 class MainMenu extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             data: [],
             currentCategory: 0,
@@ -24,17 +27,18 @@ class MainMenu extends React.Component {
     }
 
     async componentDidMount() {
-        this.mounted = true;
+        this._isMounted = true;
         try {
-            const response = await fetch('http://localhost:3000/menu', {
+            const { access_token, token_type } = this.props.token;
+            const response = await fetch(`${SERVER}${GET_MAIN_MENU}`, {
                 headers: {
                     'Cache-Control': 'no-cache',
-                    Authorization: `Token ${this.props.token}`,
+                    Authorization: `${token_type} ${access_token}`,
                 }
             });
-            if (this.mounted) {
+            if (this._isMounted) {
                 const responseData = await response.json();
-                await this.setState({ data: responseData });
+                this.setState({ data: responseData });
             }
         } catch (error) {
             console.log(error);
@@ -42,7 +46,7 @@ class MainMenu extends React.Component {
     }
 
     componentWillUnmount() {
-        this.mounted = false;
+        this._isMounted = false;
     }
 
     addMenu(data) {
@@ -130,7 +134,8 @@ class MainMenu extends React.Component {
             return this.state.data[this.state.currentCategory]
             .sub_categories.map((subCategory, index) => 
                 <SubCategory key={index} text={subCategory.name}>
-                    {this.renderMenuItem(subCategory.menus)}
+                    {/* {this.renderMenuItem(subCategory.menus)} */}
+                    {this.renderMenu(subCategory.menus)}
                 </SubCategory>
             );
         }
@@ -185,6 +190,30 @@ class MainMenu extends React.Component {
         return <Center><Text>ไม่มีรายการสินค้า</Text></Center>;
     }
 
+    _keyExtractor = (item, index) => index;
+
+      renderItem(item) {
+          return (
+            <MenuItem data={item} onPress={() => this.addMenu(item)} />
+          );
+      }
+
+    renderMenu(data) {
+        if (this.state.data.length > 0) {
+            return (
+                <FlatList
+                    data={data}
+                    keyExtractor={this._keyExtractor}     //has to be unique   
+                    renderItem={({ item, }) => 
+                        this.renderItem(item)
+                    } //method to render the data in the way you want using styling u need
+                    horizontal={false}
+                    numColumns={3}
+                />
+            );
+        }
+    }
+
     render() {
         const { rightContainer } = styles;
         return (
@@ -226,4 +255,9 @@ const styles = {
     }
 };
 
-export default MainMenu;
+const mapStateToProps = ({ auth }) => {
+    const { token } = auth;
+    return { token };
+};
+
+export default connect(mapStateToProps)(MainMenu);

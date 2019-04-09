@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Dimensions, Image, TouchableOpacity, } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
 import { Constants, LinearGradient, } from 'expo';
 import { SideMenuItem, } from './common';
 import { DARK_ORANGE, YELLOW, } from '../colors';
@@ -37,8 +38,13 @@ class SideMenu extends React.Component {
                     style={containerStyle}
                 />
                 <View style={restaurantContainer}>
-                    <Image source={require('../images/thai_food.png')} style={imageStyle} />
-                    <Text style={restaurantName} numberOfLines={2} >Restaurant Name Example</Text>
+                    <Image 
+                        source={{ uri: this.props.userInfo.profile_picture }} 
+                        style={imageStyle} 
+                    />
+                    <Text style={restaurantName} numberOfLines={2} >
+                        {this.props.userInfo.name}
+                    </Text>
                 </View>
                 <View style={{ flex: 1, marginTop: 10, }}>
                     <SideMenuItem 
@@ -123,4 +129,9 @@ const styles = {
     },
 };
 
-export default SideMenu;
+const mapStateToProps = ({ auth }) => {
+    const { userInfo } = auth;
+    return { userInfo };
+};
+
+export default connect(mapStateToProps)(SideMenu);
