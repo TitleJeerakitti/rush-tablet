@@ -128,7 +128,6 @@ class LoginForm extends React.Component {
             textWhite, 
             lineStyle, 
             inputStyle, 
-            buttonStyle 
         } = styles;
         return (
             <AuthBackground>

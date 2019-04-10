@@ -3,3 +3,4 @@ export * from './MenuItem';
 export * from './MenuNumItem';
 export * from './AddButton';
 export * from './MenuManageContainer';
+export * from './Change';

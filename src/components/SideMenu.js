@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, Dimensions, Image, TouchableOpacity, } from 'react-native';
+import { View, Text, Dimensions, Image, TouchableOpacity, AsyncStorage } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { Constants, LinearGradient, } from 'expo';
 import { SideMenuItem, } from './common';
 import { DARK_ORANGE, YELLOW, } from '../colors';
+import { SERVER, LOG_OUT, AUTH_HEADER, CLIENT_ID, CLIENT_SECRET } from '../config';
+import { authUserLogout } from '../actions';
 
 const config = {
     bannerHeight: Dimensions.get('window').height * 0.15,
@@ -17,6 +19,52 @@ const config = {
 };
 
 class SideMenu extends React.Component {
+    constructor(props) {
+        super(props);
+        this._isMounted = false;
+    }
+
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
+    async onLogoutAPI() {
+        try {
+            const { token_type, access_token } = this.props.token;
+            console.log(token_type, access_token);
+            const response = await fetch(`${SERVER}${LOG_OUT}`, {
+                method: 'POST',
+                headers: AUTH_HEADER(token_type, access_token),
+                body: JSON.stringify({
+                    client_id: CLIENT_ID,
+                    client_secret: CLIENT_SECRET,
+                    token: access_token,
+                })
+            });
+            // const responseData = await response.json();
+            console.log(response.status)
+            if (this._isMounted && response.status === 200) {
+                this.removeItem();
+                Actions.reset('auth');
+                this.props.authUserLogout();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async removeItem() {
+        try {
+            await AsyncStorage.removeItem('token');
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     isCurrentScene(text) {
         return Actions.currentScene === text;
     }
@@ -79,7 +127,10 @@ class SideMenu extends React.Component {
                     />
                 </View>
                 <View style={logoutContainer}>
-                    <TouchableOpacity style={logoutButton}>
+                    <TouchableOpacity 
+                        style={logoutButton}
+                        onPress={() => this.onLogoutAPI()}
+                    >
                         <Text style={{ color: '#FFF', }}>Sign Out</Text>
                     </TouchableOpacity>
                 </View>
@@ -130,8 +181,8 @@ const styles = {
 };
 
 const mapStateToProps = ({ auth }) => {
-    const { userInfo } = auth;
-    return { userInfo };
+    const { userInfo, token } = auth;
+    return { userInfo, token };
 };
 
-export default connect(mapStateToProps)(SideMenu);
+export default connect(mapStateToProps, { authUserLogout })(SideMenu);

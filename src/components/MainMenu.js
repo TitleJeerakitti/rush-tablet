@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, Text, FlatList, } from 'react-native';
+import { View, ScrollView, Text, FlatList, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { connect } from 'react-redux';
 import { 
     Row, 
@@ -10,6 +10,7 @@ import {
     SubCategory,
     MenuItem,
     Center,
+    Change,
 } from './common';
 import { EGG, } from '../colors';
 import { SERVER, GET_MAIN_MENU } from '../config';
@@ -110,22 +111,31 @@ class MainMenu extends React.Component {
             }
             return arr;
         }, []);
+        this.renderAnimation();
         this.setState({ 
             cart, 
             subTotal: this.state.subTotal - price,
         });
     }
 
-    renderCategory() {
-        if (this.state.data.length > 0) {
-            return this.state.data.map((mainCategory, index) => 
-                <RowCategoryItem 
-                    key={index}
-                    text={mainCategory.name} 
-                    selected={this.state.currentCategory === index} 
-                    onPress={() => this.setState({ currentCategory: index })}
-                />
-            );
+    _keyExtractor = (item, index) => index;
+
+    renderItem(item) {
+        return (
+            <MenuItem 
+                data={item} 
+                onPress={() => {
+                    this.renderAnimation();
+                    this.addMenu(item);
+                }} 
+            />
+        );
+    }
+
+    renderAnimation() {
+        LayoutAnimation.easeInEaseOut();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
         }
     }
 
@@ -190,13 +200,21 @@ class MainMenu extends React.Component {
         return <Center><Text>ไม่มีรายการสินค้า</Text></Center>;
     }
 
-    _keyExtractor = (item, index) => index;
-
-      renderItem(item) {
-          return (
-            <MenuItem data={item} onPress={() => this.addMenu(item)} />
-          );
-      }
+    renderCategory() {
+        if (this.state.data.length > 0) {
+            return this.state.data.map((mainCategory, index) => 
+                <RowCategoryItem 
+                    key={index}
+                    text={mainCategory.name} 
+                    selected={this.state.currentCategory === index} 
+                    onPress={() => {
+                        this.renderAnimation();
+                        this.setState({ currentCategory: index });
+                    }}
+                />
+            );
+        }
+    }
 
     renderMenu(data) {
         if (this.state.data.length > 0) {
@@ -233,10 +251,14 @@ class MainMenu extends React.Component {
                         price={(this.state.subTotal * 0.93).toFixed(2)}
                         vat={(this.state.subTotal * 0.07).toFixed(2)}
                         total={this.state.subTotal.toFixed(2)}
-                        onClear={() => this.setState({ cart: [], subTotal: 0 })}
+                        onClear={() => {
+                            this.renderAnimation();
+                            this.setState({ cart: [], subTotal: 0 });
+                        }}
                         onSubmit={() => console.log('submit')}
                     />
                 </View>
+                <Change />
             </Row>
         );
     }

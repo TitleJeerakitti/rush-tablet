@@ -5,36 +5,6 @@ import { Icon } from 'react-native-elements';
 import { Row } from '../Row';
 import { DARK_RED, ORANGE, GREEN } from '../../../colors';
 
-const styles = {
-    containerClear: {
-        flex: 1,
-        backgroundColor: DARK_RED, 
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-    },
-    containerDecrease: {
-        flex: 1,
-        backgroundColor: ORANGE,
-        justifyContent: 'center',
-    },
-    containerIncrease: {
-        flex: 1,
-        backgroundColor: GREEN,
-        justifyContent: 'center',
-    },
-    containerStyle: {
-        paddingHorizontal: 10,
-        backgroundColor: '#FFF',
-    },
-    iconStyle: {
-        width: 75,
-    },
-    textStyle: {
-        padding: 10, 
-        textAlign: 'center',
-    }
-};
-
 class OrderList extends React.Component {
 
     render() {
@@ -94,5 +64,35 @@ class OrderList extends React.Component {
         );
     }
 }
+
+const styles = {
+    containerClear: {
+        flex: 1,
+        backgroundColor: DARK_RED, 
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    containerDecrease: {
+        flex: 1,
+        backgroundColor: ORANGE,
+        justifyContent: 'center',
+    },
+    containerIncrease: {
+        flex: 1,
+        backgroundColor: GREEN,
+        justifyContent: 'center',
+    },
+    containerStyle: {
+        paddingHorizontal: 10,
+        backgroundColor: '#FFF',
+    },
+    iconStyle: {
+        width: 75,
+    },
+    textStyle: {
+        padding: 10, 
+        textAlign: 'center',
+    }
+};
 
 export { OrderList };

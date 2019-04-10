@@ -1,4 +1,4 @@
-import { USER_LOGIN } from '../type';
+import { USER_LOGIN, USER_LOGOUT } from '../type';
 
 const INITIAL_STATE = {
     userInfo: undefined,
@@ -13,6 +13,8 @@ export default (state = INITIAL_STATE, action) => {
                 token: action.payload.token,
                 userInfo: action.payload.user_info,
             };
+        case USER_LOGOUT:
+            return INITIAL_STATE;
         default:
             return state;
     }

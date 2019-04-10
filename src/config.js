@@ -3,6 +3,7 @@ export const CLIENT_SECRET = '20gLSwtsfYqqsamMYLj7GGYxziYRaoQXzCcdIARLY1XkQ7tzpv
 export const CLIENT_ID = '55lYZd3VS5vcHGFvm2KpUKB0tdiBET8gLAXC8TSX';
 
 export const LOG_IN = '/api/restaurant/login/';
+export const LOG_OUT = '/api/restaurant/logout/';
 export const GET_MAIN_MENU = '/api/restaurant/home/';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';
@@ -18,4 +19,11 @@ export const GET_API_HEADERS = {
 
 export const CONTENT_TYPE_JSON_HEADERS = {
     'Content-Type': 'application/json',
+};
+
+export const AUTH_HEADER = (token_type, access_token) => {
+    return ({
+        'Content-Type': 'application/json',
+        Authorization: `${token_type} ${access_token}`
+    });
 };
