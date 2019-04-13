@@ -3,16 +3,21 @@ import { Modal, View, TouchableOpacity, Alert, Text, LayoutAnimation, Platform, 
 import { Icon } from 'react-native-elements';
 import { Center } from '../Center';
 import { Row } from '../Row';
-import { GRAY, ORANGE, YELLOW, LIGHT_GRAY } from '../../../colors';
+import { GRAY, ORANGE, LIGHT_GRAY } from '../../../colors';
 
 class Change extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            total: 1500.75,
             pay: '0',
             isPaid: false,
         };
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.total !== this.props.total) {
+            this.setState({ pay: '0', isPaid: false, });
+        }
     }
 
     onAddNumber(text) {
@@ -85,7 +90,7 @@ class Change extends React.Component {
                         <Row style={{ marginTop: 10 }}>
                             <Text style={styles.bold24}>TOTAL</Text>
                             <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24 }}>
-                                {this.state.total.toFixed(2)}
+                                {this.props.total.toFixed(2)}
                             </Text>
                         </Row>
                     </View>
@@ -123,6 +128,7 @@ class Change extends React.Component {
                         <Row style={{ width: 280, justifyContent: 'flex-end' }}>
                             <TouchableOpacity 
                                 style={styles.cancelButton} 
+                                onPress={this.props.onCancel}
                             >
                                 <Text style={styles.cancelButton}>CANCEL</Text>
                             </TouchableOpacity>
@@ -149,23 +155,21 @@ class Change extends React.Component {
                     </Row>
                     <Row style={{ marginTop: 10 }}>
                         <Text style={styles.bold24}>TOTAL</Text>
-                        <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24 }}>{this.state.total.toFixed(2)}</Text>
+                        <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24 }}>{this.props.total.toFixed(2)}</Text>
                     </Row>
                 </View>
                 <View style={{ ...styles.grayContainer, marginTop: 10, }}> 
                     <Row style={{ alignItems: 'flex-end', paddingTop: 10, }}>
                         <Text style={styles.changeText}>CHANGE</Text>
                         <Text style={{ flex: 1, textAlign: 'right', ...styles.orange40bold }}>
-                            {(parseFloat(this.state.pay) - this.state.total).toFixed(2)}
+                            {(parseFloat(this.state.pay) - this.props.total).toFixed(2)}
                         </Text>
                     </Row>
                 </View>
                 <Row style={{ justifyContent: 'center' }}>
                     <TouchableOpacity 
                         style={styles.orangeButton}
-                        onPress={() => {
-                            console.log('test')
-                        }}
+                        onPress={this.props.onCancel}
                     >
                         <Text style={styles.orangeButtonText}>CLOSE</Text>
                     </TouchableOpacity>
@@ -175,10 +179,9 @@ class Change extends React.Component {
     }
 
     render() {
-        console.log(this.state.isPaid);
         return (
             <Modal 
-                visible
+                visible={this.props.visible}
                 transparent
                 animationType='fade'
                 onRequestClose={() => {

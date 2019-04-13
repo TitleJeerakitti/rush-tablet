@@ -14,6 +14,7 @@ import {
 } from './common';
 import { EGG, } from '../colors';
 import { SERVER, GET_MAIN_MENU } from '../config';
+import { restaurantCollect } from '../actions';
 
 class MainMenu extends React.Component {
     constructor(props) {
@@ -24,22 +25,23 @@ class MainMenu extends React.Component {
             currentCategory: 0,
             cart: [],
             subTotal: 0,
+            visible: false,
         };
     }
 
     async componentDidMount() {
         this._isMounted = true;
         try {
-            const { access_token, token_type } = this.props.token;
+            const { token_type, access_token } = this.props.token;
             const response = await fetch(`${SERVER}${GET_MAIN_MENU}`, {
                 headers: {
-                    'Cache-Control': 'no-cache',
                     Authorization: `${token_type} ${access_token}`,
                 }
             });
             if (this._isMounted) {
                 const responseData = await response.json();
                 this.setState({ data: responseData });
+                this.props.restaurantCollect(responseData);
             }
         } catch (error) {
             console.log(error);
@@ -255,10 +257,17 @@ class MainMenu extends React.Component {
                             this.renderAnimation();
                             this.setState({ cart: [], subTotal: 0 });
                         }}
-                        onSubmit={() => console.log('submit')}
+                        onSubmit={() => this.setState({ visible: true })}
                     />
                 </View>
-                <Change />
+                <Change 
+                    visible={this.state.visible} 
+                    onCancel={() => {
+                        this.setState({ visible: false, });
+                        console.log(this.state.cart)
+                    }}
+                    total={this.state.subTotal}
+                />
             </Row>
         );
     }
@@ -282,4 +291,4 @@ const mapStateToProps = ({ auth }) => {
     return { token };
 };
 
-export default connect(mapStateToProps)(MainMenu);
+export default connect(mapStateToProps, { restaurantCollect })(MainMenu);

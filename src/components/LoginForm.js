@@ -14,8 +14,8 @@ import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { AuthBackground, Row, Center, Input } from './common';
 import { DARK_RED } from '../colors';
-import { SERVER, LOG_IN, CLIENT_SECRET, CLIENT_ID, CONTENT_TYPE_JSON_HEADERS } from '../config';
-import { authUserLogin } from '../actions';
+import { SERVER, LOG_IN, CLIENT_SECRET, CLIENT_ID, CONTENT_TYPE_JSON_HEADERS, TOKEN_LOGIN, AUTH_HEADER } from '../config';
+import { authUserLogin, authTokenLogin, } from '../actions';
 
 class LoginForm extends React.Component {
     constructor(props) {
@@ -40,9 +40,11 @@ class LoginForm extends React.Component {
 
     async getData() {
         try {
-            const token = await AsyncStorage.getItem('token');
+            const storageToken = await AsyncStorage.getItem('token');
+            const token = await JSON.parse(storageToken);
             if (token !== null) {
-                console.log(await JSON.parse(token));
+                console.log(token);
+                this.tokenLoginAPI(token);
             }
         } catch (error) {
             console.log(error);
@@ -90,6 +92,50 @@ class LoginForm extends React.Component {
                     isLoading: false, 
                     password: '',
                 });
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async tokenLoginAPI(token) {
+        try {
+            const { token_type, access_token } = token;
+            const response = await fetch(`${SERVER}${TOKEN_LOGIN}`, {
+                headers: AUTH_HEADER(token_type, access_token),
+            });
+            if (this._isMounted && response.status === 200) {
+                console.log(200, 'access_pass');
+                const responseData = await response.json();
+                this.props.authTokenLogin(responseData.user_info, token);
+                Actions.app();
+            } else {
+                console.log(response.status);
+                this.refreshTokenAPI(token);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async refreshTokenAPI(token) {
+        try {
+            const response = await fetch(`${SERVER}${LOG_IN}`, {
+                method: 'POST',
+                headers: CONTENT_TYPE_JSON_HEADERS,
+                body: JSON.stringify({
+                    client_secret: CLIENT_SECRET,
+                    client_id: CLIENT_ID,
+                    grant_type: 'refresh_token',
+                    refresh_token: token.refresh_token,
+                }),
+            });
+            if (this._isMounted && response.status === 200) {
+                console.log(200, 'store');
+                const responseData = await response.json(); 
+                await this.storeData(responseData.token);
+                this.props.authUserLogin(responseData);
+                Actions.app();
             }
         } catch (err) {
             console.log(err);
@@ -162,7 +208,9 @@ class LoginForm extends React.Component {
                                 this.setState({ password: text, error: '' });
                             }}
                         />
-                        <Text style={{ color: DARK_RED, paddingVertical: 5, }}>{this.state.error}</Text>
+                        <Text style={{ color: DARK_RED, paddingVertical: 5, }}>
+                            {this.state.error}
+                        </Text>
                         {this.renderIndicator()}
                     </Center>
                 </Row>
@@ -207,4 +255,4 @@ const styles = {
     }
 };
 
-export default connect(null, { authUserLogin })(LoginForm);
+export default connect(null, { authUserLogin, authTokenLogin, })(LoginForm);
