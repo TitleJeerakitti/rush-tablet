@@ -13,7 +13,7 @@ import {
     Change,
 } from './common';
 import { EGG, } from '../colors';
-import { SERVER, GET_MAIN_MENU } from '../config';
+import { SERVER, GET_MAIN_MENU, CREATE_OFFLINE_ORDER, AUTH_HEADER } from '../config';
 import { restaurantCollect } from '../actions';
 
 class MainMenu extends React.Component {
@@ -26,6 +26,8 @@ class MainMenu extends React.Component {
             cart: [],
             subTotal: 0,
             visible: false,
+            isPaid: false,
+            formData: {},
         };
     }
 
@@ -50,6 +52,28 @@ class MainMenu extends React.Component {
 
     componentWillUnmount() {
         this._isMounted = false;
+    }
+
+    async createOrderAPI() {
+        try {
+            const { token_type, access_token } = this.props.token;
+            const response = await fetch(`${SERVER}${CREATE_OFFLINE_ORDER}`, {
+                method: 'POST',
+                headers: AUTH_HEADER(token_type, access_token),
+                body: JSON.stringify({
+                    menus: this.manageFormData(),
+                    total: this.state.subTotal,
+                    special_request: '',
+                    discount: 0,
+                })
+            });
+            if (response.status === 200) {
+                this.renderAnimation();
+                this.setState({ isPaid: true, });
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     addMenu(data) {
@@ -118,6 +142,17 @@ class MainMenu extends React.Component {
             cart, 
             subTotal: this.state.subTotal - price,
         });
+    }
+
+    manageFormData() {
+        const result = this.state.cart.reduce((arr, item) => {
+            arr.push({
+                menu_id: item.id,
+                amount: item.quantity,
+            });
+            return arr;
+        }, []);
+        return result;
     }
 
     _keyExtractor = (item, index) => index;
@@ -257,16 +292,25 @@ class MainMenu extends React.Component {
                             this.renderAnimation();
                             this.setState({ cart: [], subTotal: 0 });
                         }}
-                        onSubmit={() => this.setState({ visible: true })}
+                        onSubmit={() => {
+                            if (this.state.subTotal > 0) {
+                                this.setState({ visible: true });
+                            }
+                        }}
                     />
                 </View>
                 <Change 
                     visible={this.state.visible} 
-                    onCancel={() => {
-                        this.setState({ visible: false, });
-                        console.log(this.state.cart)
-                    }}
+                    onPay={() => this.createOrderAPI()}
+                    onCancel={() => this.setState({ visible: false, isPaid: false, })}
+                    onClose={() => this.setState({ 
+                        visible: false, 
+                        isPaid: false, 
+                        cart: [], 
+                        subTotal: 0 
+                    })}
                     total={this.state.subTotal}
+                    isPaid={this.state.isPaid}
                 />
             </Row>
         );

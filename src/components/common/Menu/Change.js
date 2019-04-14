@@ -10,13 +10,12 @@ class Change extends React.Component {
         super(props);
         this.state = {
             pay: '0',
-            isPaid: false,
         };
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.total !== this.props.total) {
-            this.setState({ pay: '0', isPaid: false, });
+        if (prevProps.total !== this.props.total || prevProps.visible !== this.props.visible) {
+            this.setState({ pay: '0', });
         }
     }
 
@@ -77,7 +76,7 @@ class Change extends React.Component {
     }
 
     renderChange() {
-        if (!this.state.isPaid) {
+        if (!this.props.isPaid) {
             return (
                 <View style={styles.container}>
                     <View style={styles.grayContainer}>
@@ -134,10 +133,7 @@ class Change extends React.Component {
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 style={styles.orangeButton}
-                                onPress={() => {
-                                    this.renderAnimation();
-                                    this.setState({ isPaid: true });
-                                }}
+                                onPress={parseFloat(this.state.pay) >= parseFloat(this.props.total) ? this.props.onPay : () => null}
                             >
                                 <Text style={styles.orangeButtonText}>PAY</Text>
                             </TouchableOpacity>
@@ -151,11 +147,15 @@ class Change extends React.Component {
                 <View style={{ borderRadius: 10, padding: 10, }}>
                     <Row>
                         <Text style={styles.bold24}>PAY</Text>
-                        <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24, }}>{parseFloat(this.state.pay).toFixed(2)}</Text>
+                        <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24, }}>
+                            {parseFloat(this.state.pay).toFixed(2)}
+                        </Text>
                     </Row>
                     <Row style={{ marginTop: 10 }}>
                         <Text style={styles.bold24}>TOTAL</Text>
-                        <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24 }}>{this.props.total.toFixed(2)}</Text>
+                        <Text style={{ flex: 1, textAlign: 'right', ...styles.bold24 }}>
+                            {this.props.total.toFixed(2)}
+                        </Text>
                     </Row>
                 </View>
                 <View style={{ ...styles.grayContainer, marginTop: 10, }}> 
@@ -169,7 +169,7 @@ class Change extends React.Component {
                 <Row style={{ justifyContent: 'center' }}>
                     <TouchableOpacity 
                         style={styles.orangeButton}
-                        onPress={this.props.onCancel}
+                        onPress={this.props.onClose}
                     >
                         <Text style={styles.orangeButtonText}>CLOSE</Text>
                     </TouchableOpacity>
