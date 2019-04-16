@@ -1,12 +1,20 @@
 import React from 'react';
+import { LayoutAnimation, UIManager, Platform } from 'react-native';
+import { connect } from 'react-redux';
 import { Row, MenuNumItem, AddButton, MenuManageContainer } from './common';
-import { DARK_RED, ORANGE, YELLOW, BLACK_PINK, PINK, BLACK_RED, DARK_ORANGE } from '../colors';
-import { SERVER, GET_API_HEADERS, MAIN_CATEGORIES, SUB_CATEGORIES, MENUS } from '../config';
+import { DARK_RED, ORANGE, YELLOW, BLACK_PINK, PINK, BLACK_RED, } from '../colors';
+import { SERVER, GET_API_HEADERS, } from '../config';
 import { RestaurantPopup } from './common/Popup';
 
 const CURRENT_MAIN = 'CURRENT_MAIN';
 const CURRENT_SUB = 'CURRENT_SUB';
 const MENU_SELECT = 'MENU_SELECT';
+const INITIAL_MENU = {
+    isEmpty: false,
+    name: '',
+    price: 0,
+    picture: undefined,
+};
 
 class MenuManagement extends React.Component {
     constructor(props) {
@@ -15,25 +23,28 @@ class MenuManagement extends React.Component {
             currentMain: null,
             currentSub: null,
             currentMenu: undefined,
-            mainCategories: [], 
-            subCategories: [], 
             menus: [],
             visible: false,
         };
     }
 
-    async componentDidMount() {
-        const [mainCategories, subCategories, menus] = await Promise.all([
-            this.fetchDataAPI(MAIN_CATEGORIES),
-            this.fetchDataAPI(SUB_CATEGORIES),
-            this.fetchDataAPI(MENUS),
-        ]);
-        await this.setState({
-            mainCategories,
-            subCategories,
-            menus,
-            loading: false,
+    componentDidMount() {
+        this.setState({
+            menus: this.props.restaurant_menu,
         });
+    }
+
+    onPressGear(condition, item) {
+        switch (condition) {
+            case CURRENT_MAIN: 
+                return;
+            case CURRENT_SUB:
+                return;
+            case MENU_SELECT:
+                return this.setState({ visible: true, currentMenu: item, });
+            default: 
+                return;
+        }   
     }
 
     setSelect(condition, index, item) {
@@ -50,7 +61,9 @@ class MenuManagement extends React.Component {
                 if (this.state.currentSub === index) {
                     return;
                 }
-                return this.setState({ currentSub: index });
+                return this.setState({ 
+                    currentSub: index 
+                });
             case MENU_SELECT:
                 return this.setState({ visible: true, currentMenu: item, });
             default: 
@@ -70,15 +83,29 @@ class MenuManagement extends React.Component {
             return [];
         }
     }
+    
+    renderAnimation() {
+        LayoutAnimation.easeInEaseOut();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        }
+    }
 
     renderMenuItem(items = [], color, condition, isSelect) {
+        // console.log(items)
         return items.map((item, index) => 
             <MenuNumItem 
                 key={index}
                 text={item.name}
                 number={index + 1}
                 color={color}
-                onPress={() => this.setSelect(condition, index, item)}
+                onPress={() => {
+                    this.setSelect(condition, index, item);
+                    this.renderAnimation();
+                }}
+                onIconPress={() => {
+                    this.onPressGear(condition, item);
+                }}
                 selected={isSelect === index}
             />
         );
@@ -86,7 +113,6 @@ class MenuManagement extends React.Component {
 
     renderPopup() {
         if (this.state.currentMenu !== undefined) {
-            // console.log(this.state.currentMenu)
             return (
                 <RestaurantPopup 
                     visible={this.state.visible}
@@ -99,8 +125,7 @@ class MenuManagement extends React.Component {
     }
 
     render() {
-        const { mainCategories, subCategories, currentMain, currentSub, menus } = this.state;
-        // console.log(this.state.currentMenu)
+        const { menus, currentMain, currentSub, } = this.state;
         return (
             <Row style={{ flex: 1, }}>
                 <MenuManageContainer
@@ -110,7 +135,7 @@ class MenuManagement extends React.Component {
                     colors={[BLACK_RED, DARK_RED]}
                 >
                     {this.renderMenuItem(
-                        mainCategories, 
+                        menus, 
                         BLACK_RED, 
                         CURRENT_MAIN, 
                         currentMain,
@@ -126,7 +151,7 @@ class MenuManagement extends React.Component {
                     colors={[BLACK_PINK, PINK]}
                 >
                     {this.renderMenuItem(
-                        subCategories[currentMain], 
+                        currentMain !== null ? menus[currentMain].sub_categories : undefined,
                         BLACK_PINK, 
                         CURRENT_SUB, 
                         currentSub,
@@ -140,11 +165,13 @@ class MenuManagement extends React.Component {
                     colors={[ORANGE, YELLOW]}
                 >
                     {this.renderMenuItem(
-                        currentSub !== null ? menus[currentMain][currentSub] : undefined, 
+                        currentSub !== null ? menus[currentMain].sub_categories[currentSub].menus : undefined,
                         ORANGE,
                         MENU_SELECT,
                     )}
-                    <AddButton />
+                    <AddButton 
+                        onPress={() => this.setState({ visible: true, currentMenu: INITIAL_MENU, })}
+                    />
                 </MenuManageContainer>
                 {this.renderPopup()}
             </Row>
@@ -152,4 +179,9 @@ class MenuManagement extends React.Component {
     }
 }
 
-export default MenuManagement;
+const mapStateToProps = ({ restaurant }) => {
+    const { restaurant_menu } = restaurant;
+    return { restaurant_menu };
+};
+
+export default connect(mapStateToProps)(MenuManagement);

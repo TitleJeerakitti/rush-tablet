@@ -34,12 +34,16 @@ const MenuNumItem = ({ number, text, selected, onPress, color, onIconPress, }) =
                         {text}
                     </Text>
                 </View>
-                <Icon 
-                    name='settings' 
-                    containerStyle={{ padding: 10, }} 
-                    onPress={onIconPress} 
-                    color={selected ? '#FFF' : '#000'}
-                />
+                <TouchableOpacity
+                    onPress={onIconPress}
+                    style={{ padding: 10 }}
+                    activeOpacity={1}
+                >
+                    <Icon 
+                        name='settings'
+                        color={selected ? '#FFF' : '#000'}
+                    />
+                </TouchableOpacity>
             </Row>
         </TouchableOpacity>
     );

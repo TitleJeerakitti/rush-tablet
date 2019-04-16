@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Text, View, Image, TouchableOpacity, Alert, } from 'react-native';
+import { Modal, Text, View, Image, TouchableOpacity, Alert, KeyboardAvoidingView } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { Constants, } from 'expo';
 import { Row } from '../Row';
@@ -17,6 +17,7 @@ class RestaurantPopup extends React.Component {
             isEmpty: this.props.isEmpty,
             name: this.props.menu.name,
             price: this.props.menu.price.toFixed(2),
+            picture: this.props.menu.picture,
         };
     }
 
@@ -26,6 +27,7 @@ class RestaurantPopup extends React.Component {
                 isEmpty: this.props.isEmpty,
                 name: this.props.menu.name,
                 price: this.props.menu.price.toFixed(2),
+                picture: this.props.menu.picture,
             });
         }
     }
@@ -40,7 +42,7 @@ class RestaurantPopup extends React.Component {
             submitStyle,
         } = styles;
         const { visible, onCancel, onSave, } = this.props;
-        const { isEmpty, name, price = '', } = this.state;
+        const { isEmpty, name, price = '', picture, } = this.state;
         // console.log(this.props.menu)
         return (
             <Modal
@@ -51,57 +53,64 @@ class RestaurantPopup extends React.Component {
                     Alert.alert('Modal has been closed.');
                 }}
             >
-                <Center style={container}>
-                    <Row style={popupContainer}>
-                        <Image 
-                            resizeMode='cover'
-                            source={{ uri: 'http://dustyroom.com/wp-content/uploads/2017/01/empty-featured2-1.png' }} 
-                            style={imageStyle} 
-                        />
-                        <Center style={uploadIcon}>
-                            <Icon name='camera' type='material-community' color='#FFF' size={18} />
-                        </Center>
-                        <View style={{ flex: 1, marginLeft: 20, }}>
-                            <InputWithDescription 
-                                title='Menu Name'
-                                placeholder='Menu Name'
-                                value={name || null}
-                                onChangeText={(text) => this.setState({ name: text })}
+                <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' enabled>
+                    <Center style={container}>
+                        <Row style={popupContainer}>
+                            <Image 
+                                resizeMode='cover'
+                                source={{ uri: picture || 'https://i.imgur.com/aVnb6Qv.png' }} 
+                                style={imageStyle} 
                             />
-                            <InputWithDescription 
-                                title='Price'
-                                placeholder='ex. 100.00'
-                                value={price || null}
-                                onChangeText={(text) => this.setState({ price: text })}
-                                style={{ marginTop: 10 }}
-                            />
-                            <Row style={{ marginTop: 20, alignItems: 'center', }}>
-                                <CheckBox 
-                                    onPress={() => this.setState({ isEmpty: !isEmpty })} 
-                                    title='Out of Stock'
-                                    isCheck={isEmpty}
+                            <Center style={uploadIcon}>
+                                <Icon 
+                                    name='camera' 
+                                    type='material-community' 
+                                    color='#FFF' 
+                                    size={18} 
                                 />
-                                <Space />
-                                <Button 
-                                    containerStyle={cancelStyle}
-                                    textStyle={{ color: GRAY }}
-                                    hideOpacity
-                                    onPress={onCancel}
-                                >
-                                    CANCEL
-                                </Button>
-                                <Button 
-                                    containerStyle={submitStyle}
-                                    textStyle={{ color: '#FFF' }}
-                                    hideOpacity
-                                    onPress={onSave}
-                                >
-                                    SAVE
-                                </Button>
-                            </Row>
-                        </View>
-                    </Row>
-                </Center>
+                            </Center>
+                            <View style={{ flex: 1, marginLeft: 20, }}>
+                                <InputWithDescription 
+                                    title='Menu Name'
+                                    placeholder='Menu Name'
+                                    value={name || null}
+                                    onChangeText={(text) => this.setState({ name: text })}
+                                />
+                                <InputWithDescription 
+                                    title='Price'
+                                    placeholder='ex. 100.00'
+                                    value={price || null}
+                                    onChangeText={(text) => this.setState({ price: text })}
+                                    style={{ marginTop: 10 }}
+                                />
+                                <Row style={{ marginTop: 20, alignItems: 'center', }}>
+                                    <CheckBox 
+                                        onPress={() => this.setState({ isEmpty: !isEmpty })} 
+                                        title='Out of Stock'
+                                        isCheck={isEmpty}
+                                    />
+                                    <Space />
+                                    <Button 
+                                        containerStyle={cancelStyle}
+                                        textStyle={{ color: GRAY }}
+                                        hideOpacity
+                                        onPress={onCancel}
+                                    >
+                                        CANCEL
+                                    </Button>
+                                    <Button 
+                                        containerStyle={submitStyle}
+                                        textStyle={{ color: '#FFF' }}
+                                        hideOpacity
+                                        onPress={onSave}
+                                    >
+                                        SAVE
+                                    </Button>
+                                </Row>
+                            </View>
+                        </Row>
+                    </Center>
+                </KeyboardAvoidingView>
             </Modal>
         );
     }

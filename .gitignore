@@ -7,3 +7,4 @@ npm-debug.*
 *.mobileprovision
 src/images
 src/test-json-api
+\.DS_Store
