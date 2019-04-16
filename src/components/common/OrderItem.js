@@ -14,7 +14,7 @@ class OrderItem extends React.Component {
                     description: 'PENDING',
                     source: require('../../images/order-food.png'),
                     color: ORANGE,
-                    extraButton: 'CANCEL',
+                    extraButton: 'ACCEPT',
                 },
                 {
                     description: 'COOKING',
@@ -56,7 +56,7 @@ class OrderItem extends React.Component {
                 <Button
                     containerStyle={{ ...flexCenter, backgroundColor: YELLOW, }}
                     textStyle={textButton}
-                    onPress={() => console.log('more')}
+                    onPress={this.props.onMore}
                 >
                     MORE
                 </Button>
@@ -72,7 +72,8 @@ class OrderItem extends React.Component {
                 <Button
                     containerStyle={{ ...flexCenter, backgroundColor: DARK_RED, }}
                     textStyle={textButton}
-                    onPress={() => console.log(this.state.data[this.props.status].extraButton)}
+                    // onPress={() => console.log(this.state.data[this.props.status].extraButton)}
+                    onPress={this.props.onExtraButton}
                 >
                     {this.state.data[this.props.status].extraButton}
                 </Button>
@@ -113,7 +114,7 @@ class OrderItem extends React.Component {
                                     type='material-community' 
                                     size={iconHeaderSize} 
                                 />
-                                <Text style={textTopic}>{order.order_id}</Text>
+                                <Text style={textTopic}>{order.id}</Text>
                             </Row>
                             <Row style={{ alignItems: 'center', marginLeft: 10, }}>
                                 <Icon 
@@ -150,7 +151,7 @@ class OrderItem extends React.Component {
                                     size={iconDateSize} 
                                     color={GRAY} 
                                 />
-                                <Text style={textTiny}>{order.user_id}</Text>
+                                <Text style={textTiny}>{order.customer_id}</Text>
                             </Row>
                         </Row>
                         <Row style={{ marginTop: 5, }}>

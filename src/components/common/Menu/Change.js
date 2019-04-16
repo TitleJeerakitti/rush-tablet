@@ -129,7 +129,7 @@ class Change extends React.Component {
                                 style={styles.cancelButton} 
                                 onPress={this.props.onCancel}
                             >
-                                <Text style={styles.cancelButton}>CANCEL</Text>
+                                <Text style={styles.cancelText}>CANCEL</Text>
                             </TouchableOpacity>
                             <TouchableOpacity 
                                 style={styles.orangeButton}

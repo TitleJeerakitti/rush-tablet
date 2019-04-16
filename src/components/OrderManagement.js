@@ -1,26 +1,28 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { Row, SeleteItem, OrderItem, } from './common';
+import { connect } from 'react-redux';
+import { Row, SeleteItem, OrderItem, EmptyView, } from './common';
 import { ORANGE, DARK_ORANGE, DARK_RED, } from '../colors';
+import { GET_ORDER, SERVER, AUTH_HEADER, UPDATE_ORDER_STATUS } from '../config';
 
 const config = {
     data: [
         {
-            status: 'Online Order',
-            url: 'online_order',
+            status: 'Waiting Order',
+            url: 'waiting_order',
             iconName: 'cellphone-link',
             iconType: 'material-community',
         },
         {
-            status: 'Walk-In Order',
-            url: 'walkin_order',
+            status: 'Cooking Order',
+            url: 'cooking_order',
             iconName: 'restaurant-menu',
             iconType: 'material',
         },
         {
-            status: 'In Progress',
-            url: 'inprogress_order',
+            status: 'Done Order',
+            url: 'done_order',
             iconName: 'calendar-clock',
             iconType: 'material-community',
         },
@@ -34,33 +36,52 @@ class OrderManagement extends React.Component {
             visible: false,
             endDate: this.formatDate(new Date()),
             startDate: this.formatDate(new Date()),
-            currentType: config.data[0].status,
+            currentType: config.data[0].url,
+            data: {},
             orders: [],
         };
     }
 
-    componentWillMount() {
-        this.getOrderAPI(config.data[0].url);
+    componentDidMount() {
+        this.getOrderAPI();
     }
 
-    async getOrderAPI(url) {
+    async getOrderAPI() {
         try {
-            const response = await fetch(`http://localhost:3000/${url}`, {
-                headers: {
-                    'Cache-Control': 'no-cache',
-                }
+            const { token_type, access_token } = this.props.token;
+            const response = await fetch(`${SERVER}${GET_ORDER}`, {
+                headers: AUTH_HEADER(token_type, access_token),
             });
             const resposneData = await response.json();
-            await this.setState({ orders: resposneData });
+            await this.setState({ data: resposneData });
         } catch (error) {
             console.log(error);
         }
     }
 
-    changeType(type, url) {
-        if (this.state.currentType !== type) {
+    async updateAPI(order) {
+        try {
+            const { token_type, access_token, } = this.props.token;
+            const response = await fetch(`${SERVER}${UPDATE_ORDER_STATUS}`, {
+                method: 'POST',
+                headers: AUTH_HEADER(token_type, access_token),
+                body: JSON.stringify({
+                    id: order.id,
+                    status: order.status + 1,
+                })
+            });
+            if (response.status === 200) {
+                this.getOrderAPI();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    changeType(url) {
+        if (this.state.currentType !== url) {
             this.getOrderAPI(url);
-            this.setState({ currentType: type });
+            this.setState({ currentType: url });
         }
     }
 
@@ -76,6 +97,13 @@ class OrderManagement extends React.Component {
                 (date.month < new Date().getMonth() + 1 && date.year <= new Date().getFullYear()),
         });
     }
+    
+    renderAnimation() {
+        LayoutAnimation.easeInEaseOut();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        }
+    }
 
     renderSelectItem() {
         return config.data.map((value, index) => 
@@ -84,8 +112,11 @@ class OrderManagement extends React.Component {
                 iconName={value.iconName}
                 iconType={value.iconType}
                 text={value.status}
-                selected={this.state.currentType === value.status}
-                onPress={() => this.changeType(value.status, value.url)}
+                selected={this.state.currentType === value.url}
+                onPress={() => {
+                    this.changeType(value.url);
+                    this.renderAnimation();
+                }}
             />
         );
     }
@@ -122,15 +153,27 @@ class OrderManagement extends React.Component {
     }
 
     renderOrderList() {
-        if (this.state.orders.length > 0) {
-            return this.state.orders.map((order) => 
-                <OrderItem 
-                    key={order.order_id}
-                    status={order.status - 1}
-                    order={order}
+        const orders = this.state.data[this.state.currentType] || [];
+        if (orders.length > 0) {
+            return (
+                <FlatList 
+                    data={this.state.data[this.state.currentType]}
+                    keyExtractor={item => item.id}
+                    renderItem={({ item }) =>
+                        <OrderItem 
+                            status={item.status - 1}
+                            order={item}
+                            onMore={() => console.log(parseInt(item.id, 10), item.status)}
+                            onExtraButton={() => {
+                                this.updateAPI(item);
+                                this.renderAnimation();
+                            }}
+                        />
+                    }
                 />
             );
         }
+        return <EmptyView emptyText='ยังไม่มีรายการอาหาร' />;
     }
 
     render() {
@@ -140,7 +183,7 @@ class OrderManagement extends React.Component {
                 <View style={leftContainer}>
                     <TouchableOpacity 
                         style={dateContainer}
-                        onPress={() => this.setState({ visible: !this.state.visible })}
+                        // onPress={() => this.setState({ visible: !this.state.visible })}
                         activeOpacity={1}
                     >
                         <Text style={dateTextStyle}>{this.state.endDate}</Text>
@@ -151,9 +194,7 @@ class OrderManagement extends React.Component {
                     </View>
                 </View>
                 <View style={{ flex: 2, }}>
-                    <ScrollView style={{ flex: 1 }}>
-                        {this.renderOrderList()}
-                    </ScrollView>
+                    {this.renderOrderList()}
                 </View>
             </Row>
         );
@@ -185,4 +226,9 @@ const styles = {
     }
 };
 
-export default OrderManagement;
+const mapStateToProps = ({ auth }) => {
+    const { token } = auth;
+    return { token };
+};
+
+export default connect(mapStateToProps)(OrderManagement);

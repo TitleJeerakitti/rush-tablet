@@ -3,7 +3,7 @@ import { ScrollView, Text, } from 'react-native';
 import { Center } from './Center';
 import { GRAY } from '../../colors';
 
-const EmptyView = ({ children, emptyText, condition, }) => {
+const EmptyView = ({ children, emptyText, condition = false, }) => {
     if (condition) {
         return (
             <ScrollView style={{ flex: 1, }}>

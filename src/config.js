@@ -7,6 +7,8 @@ export const TOKEN_LOGIN = '/api/restaurant/get-supplier-data/';
 export const LOG_OUT = '/api/restaurant/logout/';
 export const GET_MAIN_MENU = '/api/restaurant/home/';
 export const CREATE_OFFLINE_ORDER = '/api/restaurant/create-offline-order/';
+export const GET_ORDER = '/api/restaurant/get-order-management/';
+export const UPDATE_ORDER_STATUS = '/api/restaurant/update-order-status/';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';
 export const WALKIN_QUEUE = 'walkin_queue';

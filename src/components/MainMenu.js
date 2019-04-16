@@ -179,11 +179,17 @@ class MainMenu extends React.Component {
     renderSubCategory() {
         if (this.state.data.length > 0) {
             return this.state.data[this.state.currentCategory]
-            .sub_categories.map((subCategory, index) => 
-                <SubCategory key={index} text={subCategory.name}>
-                    {/* {this.renderMenuItem(subCategory.menus)} */}
-                    {this.renderMenu(subCategory.menus)}
-                </SubCategory>
+            .sub_categories.map((subCategory, index) => {
+                    if (subCategory.menus.length > 0) {
+                        return (
+                            <SubCategory key={index} text={subCategory.name}>
+                                {/* {this.renderMenuItem(subCategory.menus)} */}
+                                {this.renderMenu(subCategory.menus)}
+                            </SubCategory>
+                        );
+                    }
+                    return <View key={index} />;
+                }
             );
         }
     }
