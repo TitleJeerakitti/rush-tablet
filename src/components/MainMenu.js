@@ -264,10 +264,10 @@ class MainMenu extends React.Component {
             return (
                 <FlatList
                     data={data}
-                    keyExtractor={this._keyExtractor}     //has to be unique   
+                    keyExtractor={this._keyExtractor}
                     renderItem={({ item, }) => 
                         this.renderItem(item)
-                    } //method to render the data in the way you want using styling u need
+                    }
                     horizontal={false}
                     numColumns={3}
                 />

@@ -31,7 +31,7 @@ class RouterComponent extends React.Component {
                                         initial
                                     />
                                 </Scene>
-                                <Scene key='order' icon={IconTab} iconName='shopping'>
+                                <Scene key='order' icon={IconTab} iconName='shopping' initial>
                                     <Scene 
                                         key='mainOrder' 
                                         component={OrderManagement} 

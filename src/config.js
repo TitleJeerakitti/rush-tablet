@@ -8,6 +8,7 @@ export const LOG_OUT = '/api/restaurant/logout/';
 export const GET_MAIN_MENU = '/api/restaurant/home/';
 export const CREATE_OFFLINE_ORDER = '/api/restaurant/create-offline-order/';
 export const GET_ORDER = '/api/restaurant/get-order-management/';
+export const GET_ORDER_DETAIL = '/api/restaurant/order-detail/';
 export const UPDATE_ORDER_STATUS = '/api/restaurant/update-order-status/';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';

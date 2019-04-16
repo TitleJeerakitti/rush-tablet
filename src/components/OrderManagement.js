@@ -4,7 +4,8 @@ import { Calendar } from 'react-native-calendars';
 import { connect } from 'react-redux';
 import { Row, SeleteItem, OrderItem, EmptyView, } from './common';
 import { ORANGE, DARK_ORANGE, DARK_RED, } from '../colors';
-import { GET_ORDER, SERVER, AUTH_HEADER, UPDATE_ORDER_STATUS } from '../config';
+import { GET_ORDER, SERVER, AUTH_HEADER, UPDATE_ORDER_STATUS, GET_ORDER_DETAIL } from '../config';
+import { OrderDetailPopup } from './common/Popup';
 
 const config = {
     data: [
@@ -38,7 +39,8 @@ class OrderManagement extends React.Component {
             startDate: this.formatDate(new Date()),
             currentType: config.data[0].url,
             data: {},
-            orders: [],
+            orderDetail: {},
+            isShowDetail: false,
         };
     }
 
@@ -53,13 +55,29 @@ class OrderManagement extends React.Component {
                 headers: AUTH_HEADER(token_type, access_token),
             });
             const resposneData = await response.json();
-            await this.setState({ data: resposneData });
+            await this.setState({ data: resposneData, isShowDetail: false, orderDetail: {} });
         } catch (error) {
             console.log(error);
         }
     }
+    
+    async getOrderDetailAPI(id) {
+        try {
+            const { token_type, access_token, } = this.props.token;
+            const response = await fetch(`${SERVER}${GET_ORDER_DETAIL}?id=${id}`, {
+                headers: AUTH_HEADER(token_type, access_token),
+            });
+            if (response.status === 200) {
+                // this.getOrderAPI();
+                const resposneData = await response.json();
+                this.setState({ orderDetail: resposneData, isShowDetail: true });
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
-    async updateAPI(order) {
+    async updateAPI(order, status) {
         try {
             const { token_type, access_token, } = this.props.token;
             const response = await fetch(`${SERVER}${UPDATE_ORDER_STATUS}`, {
@@ -67,14 +85,24 @@ class OrderManagement extends React.Component {
                 headers: AUTH_HEADER(token_type, access_token),
                 body: JSON.stringify({
                     id: order.id,
-                    status: order.status + 1,
+                    status,
                 })
             });
             if (response.status === 200) {
+                this.renderAnimation();
                 this.getOrderAPI();
             }
         } catch (err) {
             console.log(err);
+        }
+    }
+
+    statusUpdate(order) {
+        const { category, status } = order;
+        if ((category === 'A' || category === 'R') && status !== 3) {
+            this.updateAPI(order, status + 1);
+        } else if (category === 'A' && status === 3) {
+            this.updateAPI(order, 5);
         }
     }
 
@@ -157,23 +185,20 @@ class OrderManagement extends React.Component {
         if (orders.length > 0) {
             return (
                 <FlatList 
-                    data={this.state.data[this.state.currentType]}
+                    data={orders}
                     keyExtractor={item => item.id}
                     renderItem={({ item }) =>
                         <OrderItem 
                             status={item.status - 1}
                             order={item}
-                            onMore={() => console.log(parseInt(item.id, 10), item.status)}
-                            onExtraButton={() => {
-                                this.updateAPI(item);
-                                this.renderAnimation();
-                            }}
+                            onMore={() => this.getOrderDetailAPI(parseInt(item.id, 10))}
+                            onExtraButton={() => this.statusUpdate(item)}
                         />
                     }
                 />
             );
         }
-        return <EmptyView emptyText='ยังไม่มีรายการอาหาร' />;
+        return <EmptyView emptyText='EMPTY ORDER LIST' />;
     }
 
     render() {
@@ -196,6 +221,13 @@ class OrderManagement extends React.Component {
                 <View style={{ flex: 2, }}>
                     {this.renderOrderList()}
                 </View>
+                <OrderDetailPopup 
+                    visible={this.state.isShowDetail}
+                    data={this.state.orderDetail}
+                    onClose={() => this.setState({ isShowDetail: false, })}
+                    onCancel={() => this.updateAPI(this.state.orderDetail, 4)}
+                    onConfirm={() => this.statusUpdate(this.state.orderDetail)}
+                />
             </Row>
         );
     }
