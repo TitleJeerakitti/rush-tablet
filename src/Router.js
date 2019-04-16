@@ -20,7 +20,7 @@ class RouterComponent extends React.Component {
                         <Scene key='login' component={LoginForm} initial />
                     </Scene>
                     <Drawer key='app' contentComponent={SideMenu}>
-                        <Scene key='container' hideNavBar>
+                        <Scene key='container' hideNavBar drawerLockMode='locked-closed'>
                             <Tabs key='tabber' tabBarStyle={tabBarStyle} showLabel={false}>
                                 <Scene key='main' icon={IconTab} iconName='home'>
                                     <Scene 
@@ -38,6 +38,7 @@ class RouterComponent extends React.Component {
                                         title='Order Management' 
                                         navBar={NavHamberger}
                                         initial
+                                        drawerLockMode='locked-open'
                                     />
                                 </Scene>
                                 <Scene key='queue' icon={IconTab} iconName='account-group'>

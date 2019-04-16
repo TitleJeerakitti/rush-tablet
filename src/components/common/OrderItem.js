@@ -75,7 +75,7 @@ class OrderItem extends React.Component {
                     // onPress={() => console.log(this.state.data[this.props.status].extraButton)}
                     onPress={this.props.onExtraButton}
                 >
-                    {this.state.data[this.props.status].extraButton}
+                    {this.props.order.status === 3 && this.props.order.category === 'A' ? 'GRAB' : this.state.data[this.props.status].extraButton} 
                 </Button>
             );
         }

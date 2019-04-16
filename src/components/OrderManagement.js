@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { connect } from 'react-redux';
-import { Row, SeleteItem, OrderItem, EmptyView, } from './common';
+import { Row, SeleteItem, OrderItem, EmptyView, Change, } from './common';
 import { ORANGE, DARK_ORANGE, DARK_RED, } from '../colors';
 import { GET_ORDER, SERVER, AUTH_HEADER, UPDATE_ORDER_STATUS, GET_ORDER_DETAIL } from '../config';
 import { OrderDetailPopup } from './common/Popup';
@@ -41,6 +41,8 @@ class OrderManagement extends React.Component {
             data: {},
             orderDetail: {},
             isShowDetail: false,
+            isPay: false,
+            isPaid: false,
         };
     }
 
@@ -89,8 +91,10 @@ class OrderManagement extends React.Component {
                 })
             });
             if (response.status === 200) {
-                this.renderAnimation();
-                this.getOrderAPI();
+                this.setState({ isPaid: true, });
+                if (!this.state.isPay) {
+                    this.getOrderAPI();
+                }
             }
         } catch (err) {
             console.log(err);
@@ -103,6 +107,8 @@ class OrderManagement extends React.Component {
             this.updateAPI(order, status + 1);
         } else if (category === 'A' && status === 3) {
             this.updateAPI(order, 5);
+        } else if (category === 'R' && status === 3) {
+            this.setState({ isPay: true, isPaid: false, isShowDetail: false, orderDetail: order });
         }
     }
 
@@ -192,7 +198,10 @@ class OrderManagement extends React.Component {
                             status={item.status - 1}
                             order={item}
                             onMore={() => this.getOrderDetailAPI(parseInt(item.id, 10))}
-                            onExtraButton={() => this.statusUpdate(item)}
+                            onExtraButton={() => {
+                                this.renderAnimation();
+                                this.statusUpdate(item);
+                            }}
                         />
                     }
                 />
@@ -221,12 +230,34 @@ class OrderManagement extends React.Component {
                 <View style={{ flex: 2, }}>
                     {this.renderOrderList()}
                 </View>
+                <Change
+                    visible={this.state.isPay} 
+                    onPay={() => this.updateAPI(this.state.orderDetail, 5)}
+                    onCancel={() => this.setState({ isPay: false, isPaid: false, })}
+                    onClose={() => {
+                        this.renderAnimation();
+                        this.setState({ 
+                            isPay: false, 
+                            isPaid: false, 
+                            orderDetail: {},
+                        });
+                        this.getOrderAPI();
+                    }}
+                    total={this.state.orderDetail.total || 0}
+                    isPaid={this.state.isPaid}
+                />
                 <OrderDetailPopup 
                     visible={this.state.isShowDetail}
                     data={this.state.orderDetail}
                     onClose={() => this.setState({ isShowDetail: false, })}
-                    onCancel={() => this.updateAPI(this.state.orderDetail, 4)}
-                    onConfirm={() => this.statusUpdate(this.state.orderDetail)}
+                    onCancel={() => {
+                        this.renderAnimation();
+                        this.updateAPI(this.state.orderDetail, 4);
+                    }}
+                    onConfirm={() => {
+                        this.renderAnimation();
+                        this.statusUpdate(this.state.orderDetail);
+                    }}
                 />
             </Row>
         );

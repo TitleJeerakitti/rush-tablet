@@ -61,21 +61,21 @@ class OrderDetailPopup extends React.Component {
                         </View>
                         <Row style={{ backgroundColor: LIGHT_GRAY, padding: 10, paddingHorizontal: 20, justifyContent: 'flex-end', }}>
                             <Button
-                                containerStyle={{ paddingVertical: 5, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
+                                containerStyle={{ paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
                                 textStyle={{ color: GRAY }}
                                 onPress={onClose}
                             >
                                 CLOSE
                             </Button>
                             {status === 1 ? <Button
-                                containerStyle={{ backgroundColor: DARK_RED, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
+                                containerStyle={{ backgroundColor: DARK_RED, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
                                 textStyle={{ color: '#FFF' }}
                                 onPress={onCancel}
                             >
                                 CANCEL
                             </Button> : <View />}
                             <Button
-                                containerStyle={{ backgroundColor: ORANGE, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
+                                containerStyle={{ backgroundColor: ORANGE, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
                                 textStyle={{ color: '#FFF' }}
                                 onPress={onConfirm}
                             >

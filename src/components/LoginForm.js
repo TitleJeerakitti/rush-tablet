@@ -84,7 +84,7 @@ class LoginForm extends React.Component {
                 });
                 await this.storeData(responseData.token);
                 this.props.authUserLogin(responseData);
-                Actions.app();
+                Actions.replace('app');
             } else if (this._isMounted) {
                 this.renderAnimation();
                 this.setState({ 
@@ -108,7 +108,7 @@ class LoginForm extends React.Component {
                 console.log(200, 'access_pass');
                 const responseData = await response.json();
                 this.props.authTokenLogin(responseData.user_info, token);
-                Actions.app();
+                Actions.replace('app');
             } else {
                 console.log(response.status);
                 this.refreshTokenAPI(token);
@@ -135,7 +135,7 @@ class LoginForm extends React.Component {
                 const responseData = await response.json(); 
                 await this.storeData(responseData.token);
                 this.props.authUserLogin(responseData);
-                Actions.app();
+                Actions.replace('app');
             }
         } catch (err) {
             console.log(err);
