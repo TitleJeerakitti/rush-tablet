@@ -1,4 +1,4 @@
-import { USER_LOGIN, USER_LOGOUT, AUTH_TOKEN_LOGIN } from '../type';
+import { USER_LOGIN, USER_LOGOUT, AUTH_TOKEN_LOGIN, TOGGLE_SHOP_STATUS } from '../type';
 
 const INITIAL_STATE = {
     userInfo: undefined,
@@ -13,6 +13,14 @@ export default (state = INITIAL_STATE, action) => {
                 ...state,
                 token: action.payload.token,
                 userInfo: action.payload.user_info,
+            };
+        case TOGGLE_SHOP_STATUS:
+            return {
+                ...state,
+                userInfo: {
+                    ...state.userInfo,
+                    is_open: action.payload,
+                }
             };
         case USER_LOGOUT:
             return INITIAL_STATE;

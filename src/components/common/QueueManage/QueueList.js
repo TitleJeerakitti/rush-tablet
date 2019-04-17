@@ -7,22 +7,13 @@ class QueueList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            type: this.substringQueue(this.props.queue, 'type'),
-            number: this.substringQueue(this.props.queue, 'number'),
+            type: this.props.queue.slice(0, 1),
+            number: this.props.queue.slice(1),
         };
     }
 
-    substringQueue(queue, role) {
-        if (role === 'type') {
-            return queue.substr(0, 1);
-        } else if (role === 'number') {
-            return queue.substr(2);
-        }
-        return;
-    }
-
     render() {
-        const { headerColor, buttonColor, onMore, onGrab } = this.props;
+        const { headerColor, } = this.props;
         const { type, number } = this.state;
         const { container, queueType, queueText, } = styles;
         return (
@@ -33,7 +24,7 @@ class QueueList extends React.Component {
                 <View style={{ padding: 10, flex: 1, }}>
                     <Text style={queueText}>{number}</Text>
                 </View>
-                <TouchableOpacity 
+                {/* <TouchableOpacity 
                     style={{ padding: 10, }}
                     onPress={onMore}
                 >
@@ -46,7 +37,7 @@ class QueueList extends React.Component {
                     <Text style={{ fontWeight: 'bold', color: buttonColor, }}>
                         GRAB
                     </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </Row>
         );
     }

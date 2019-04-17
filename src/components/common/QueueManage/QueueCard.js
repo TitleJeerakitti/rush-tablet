@@ -24,18 +24,18 @@ const QueueCard = ({ colors, buttonColor, queue, onNext, onAgain, header, }) => 
                 <Text style={{ ...queueText, ...boldWhite }}>{queue}</Text>
             </LinearGradient>
             <Row style={buttonContainer}>
-                <TouchableOpacity style={{ padding: 10 }} onPress={onAgain}>
+                {/* <TouchableOpacity style={{ padding: 10 }} onPress={onAgain}>
                     <Text style={{ ...boldWhite, color: GRAY, }}>AGAIN</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
                 <TouchableOpacity 
                     style={{ 
                         padding: 10, 
                         ...buttonStyle, 
                         backgroundColor: buttonColor, 
                     }}
-                    onPress={onNext}
+                    onPress={onAgain}
                 >
-                    <Text style={boldWhite}>NEXT</Text>
+                    <Text style={boldWhite}>AGAIN</Text>
                 </TouchableOpacity>
             </Row>
         </View>
