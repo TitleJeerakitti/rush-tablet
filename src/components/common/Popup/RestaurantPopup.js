@@ -11,26 +11,26 @@ import { Space } from '../Space';
 import { CheckBox } from '../CheckBox';
 
 class RestaurantPopup extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isEmpty: this.props.isEmpty,
-            name: this.props.menu.name,
-            price: this.props.menu.price.toFixed(2),
-            picture: this.props.menu.picture,
-        };
-    }
+    // constructor(props) {
+    //     super(props);
+    //     this.state = {
+    //         isEmpty: this.props.menu.is_out_of_stock,
+    //         name: this.props.menu.name,
+    //         price: this.props.menu.price.toFixed(2),
+    //         picture: this.props.menu.picture || 'https://i.imgur.com/aVnb6Qv.png',
+    //     };
+    // }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevState.name !== this.props.menu.name) {
-            this.setState({
-                isEmpty: this.props.isEmpty,
-                name: this.props.menu.name,
-                price: this.props.menu.price.toFixed(2),
-                picture: this.props.menu.picture,
-            });
-        }
-    }
+    // componentDidUpdate(prevProps, prevState) {
+    //     if (prevState.name !== this.props.menu.name) {
+    //         this.setState({
+    //             isEmpty: this.props.menu.is_out_of_stock,
+    //             name: this.props.menu.name,
+    //             price: this.props.menu.price.toFixed(2),
+    //             picture: this.props.menu.picture || 'https://i.imgur.com/aVnb6Qv.png',
+    //         });
+    //     }
+    // }
 
     render() {
         const { 
@@ -41,8 +41,8 @@ class RestaurantPopup extends React.Component {
             cancelStyle,
             submitStyle,
         } = styles;
-        const { visible, onCancel, onSave, } = this.props;
-        const { isEmpty, name, price = '', picture, } = this.state;
+        const { visible, onCancel, onSave, onChangeName, onChangeOutOfStock, onChangePrice, onDelete, onChangePicture } = this.props;
+        const { is_out_of_stock, name, price = '0', picture, isNew, } = this.props.menu;
         // console.log(this.props.menu)
         return (
             <Modal
@@ -56,38 +56,47 @@ class RestaurantPopup extends React.Component {
                 <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' enabled>
                     <Center style={container}>
                         <Row style={popupContainer}>
-                            <Image 
-                                resizeMode='cover'
-                                source={{ uri: picture || 'https://i.imgur.com/aVnb6Qv.png' }} 
-                                style={imageStyle} 
-                            />
-                            <Center style={uploadIcon}>
-                                <Icon 
-                                    name='camera' 
-                                    type='material-community' 
-                                    color='#FFF' 
-                                    size={18} 
+                            <TouchableOpacity onPress={onChangePicture}>
+                                <Image 
+                                    resizeMode='cover'
+                                    source={{ uri: this.props.imageURL || picture }} 
+                                    style={imageStyle} 
                                 />
-                            </Center>
+                                <Center style={uploadIcon}>
+                                    <Icon 
+                                        name='camera' 
+                                        type='material-community' 
+                                        color='#FFF' 
+                                        size={18} 
+                                    />
+                                </Center>
+                            </TouchableOpacity>
                             <View style={{ flex: 1, marginLeft: 20, }}>
+                                { isNew ? <View /> :
+                                <TouchableOpacity 
+                                    style={{ backgroundColor: DARK_RED, borderRadius: 50, padding: 2, alignSelf: 'flex-end', marginBottom: 5, }}
+                                    onPress={onDelete}
+                                >
+                                    <Icon name='trash-can' type='material-community' size={20} color='white' /> 
+                                </TouchableOpacity>}
                                 <InputWithDescription 
                                     title='Menu Name'
                                     placeholder='Menu Name'
                                     value={name || null}
-                                    onChangeText={(text) => this.setState({ name: text })}
+                                    onChangeText={onChangeName}
                                 />
                                 <InputWithDescription 
                                     title='Price'
                                     placeholder='ex. 100.00'
-                                    value={price || null}
-                                    onChangeText={(text) => this.setState({ price: text })}
+                                    value={price.toString() || null}
+                                    onChangeText={onChangePrice}
                                     style={{ marginTop: 10 }}
                                 />
                                 <Row style={{ marginTop: 20, alignItems: 'center', }}>
                                     <CheckBox 
-                                        onPress={() => this.setState({ isEmpty: !isEmpty })} 
+                                        onPress={onChangeOutOfStock} 
                                         title='Out of Stock'
-                                        isCheck={isEmpty}
+                                        isCheck={is_out_of_stock}
                                     />
                                     <Space />
                                     <Button 
@@ -145,8 +154,8 @@ const styles = {
         borderRadius: 15, 
         backgroundColor: '#000', 
         position: 'absolute', 
-        bottom: 30, 
-        left: 135, 
+        bottom: 5, 
+        right: 5, 
     },
     cancelStyle: {
         paddingHorizontal: 10, 

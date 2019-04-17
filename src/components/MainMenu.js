@@ -49,7 +49,7 @@ class MainMenu extends React.Component {
             console.log(error);
         }
     }
-
+    
     componentWillUnmount() {
         this._isMounted = false;
     }

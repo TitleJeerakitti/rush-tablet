@@ -22,7 +22,7 @@ class RouterComponent extends React.Component {
                     <Drawer key='app' contentComponent={SideMenu}>
                         <Scene key='container' hideNavBar drawerLockMode='locked-closed'>
                             <Tabs key='tabber' tabBarStyle={tabBarStyle} showLabel={false}>
-                                <Scene key='main' icon={IconTab} iconName='home'>
+                                <Scene key='main' icon={IconTab} iconName='home' initial>
                                     <Scene 
                                         key='mainHome' 
                                         component={MainMenu} 
@@ -31,7 +31,7 @@ class RouterComponent extends React.Component {
                                         initial
                                     />
                                 </Scene>
-                                <Scene key='order' icon={IconTab} iconName='shopping' initial>
+                                <Scene key='order' icon={IconTab} iconName='shopping'>
                                     <Scene 
                                         key='mainOrder' 
                                         component={OrderManagement} 

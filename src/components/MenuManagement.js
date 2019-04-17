@@ -1,19 +1,31 @@
 import React from 'react';
 import { LayoutAnimation, UIManager, Platform } from 'react-native';
 import { connect } from 'react-redux';
+import { Permissions, ImagePicker } from 'expo';
 import { Row, MenuNumItem, AddButton, MenuManageContainer } from './common';
 import { DARK_RED, ORANGE, YELLOW, BLACK_PINK, PINK, BLACK_RED, } from '../colors';
-import { SERVER, GET_API_HEADERS, } from '../config';
-import { RestaurantPopup } from './common/Popup';
+import { SERVER, GET_API_HEADERS, AUTH_HEADER, MENU_MODIFY, GET_MAIN_MENU, MAIN_CATEGORY_MODIFY, SUB_CATEGORY_MODIFY, } from '../config';
+import { RestaurantPopup, CategoryDetail } from './common/Popup';
+import { restaurantCollect } from '../actions';
 
 const CURRENT_MAIN = 'CURRENT_MAIN';
 const CURRENT_SUB = 'CURRENT_SUB';
 const MENU_SELECT = 'MENU_SELECT';
 const INITIAL_MENU = {
-    isEmpty: false,
+    is_out_of_stock: false,
+    is_display: true,
+    id: null,
     name: '',
-    price: 0,
-    picture: undefined,
+    price: '',
+    picture: 'https://i.imgur.com/aVnb6Qv.png',
+    isNew: true,
+};
+
+const INITIAL_CATEGORY = {
+    isNew: true,
+    id: null,
+    name: '',
+    is_display: true,
 };
 
 class MenuManagement extends React.Component {
@@ -22,13 +34,16 @@ class MenuManagement extends React.Component {
         this.state = {
             currentMain: null,
             currentSub: null,
-            currentMenu: undefined,
+            currentMenu: INITIAL_MENU,
+            currentCategory: null,
+            imageURL: null,
             menus: [],
             visible: false,
         };
     }
 
     componentDidMount() {
+        this._isMounted = true;
         this.setState({
             menus: this.props.restaurant_menu,
         });
@@ -36,15 +51,130 @@ class MenuManagement extends React.Component {
 
     onPressGear(condition, item) {
         switch (condition) {
-            case CURRENT_MAIN: 
-                return;
+            case CURRENT_MAIN:
             case CURRENT_SUB:
-                return;
+                return this.setState({ currentCategory: item });
             case MENU_SELECT:
-                return this.setState({ visible: true, currentMenu: item, });
+                return this.setState({ visible: true, currentMenu: item, imageURL: null });
             default: 
                 return;
         }   
+    }
+
+    async onDeleteCategory(currentCategory) {
+        if (currentCategory.menus !== undefined) {
+            const data = {
+                main_category_id: this.state.menus[this.state.currentMain].id,
+                name: currentCategory.name,
+                is_display: false,
+                sub_category_id: currentCategory.id,
+            };
+            const result = await this.fetchDataAPI(SUB_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
+            if (result.status === 200) {
+                this.setState({ currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
+                this.refreshMenuList();
+            }
+        } else {
+            const data = {
+                main_category_id: currentCategory.id,
+                name: currentCategory.name,
+                is_display: false,
+            };
+            const result = await this.fetchDataAPI(MAIN_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
+            if (result.status === 200) {
+                this.setState({ currentMain: null, currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
+                this.refreshMenuList();
+            }
+        }
+    }
+
+    async onCreateUpdateCategory(currentCategory) {
+        if (currentCategory.menus !== undefined) {
+            const data = {
+                main_category_id: this.state.menus[this.state.currentMain].id,
+                name: currentCategory.name,
+                is_display: true,
+                sub_category_id: currentCategory.id,
+            };
+            const result = await this.fetchDataAPI(SUB_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
+            if (result.status === 200) {
+                this.setState({ currentCategory: null });
+                this.refreshMenuList();
+            }
+        } else {
+            const data = {
+                main_category_id: currentCategory.id,
+                name: currentCategory.name,
+                is_display: true,
+            };
+            const result = await this.fetchDataAPI(MAIN_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
+            if (result.status === 200) {
+                this.setState({ currentCategory: null });
+                this.refreshMenuList();
+            }
+        }
+    }
+
+    async onDelete(currentMenu) {
+        const { menus, currentMain, currentSub, imageURL } = this.state;
+        const data = {
+            name: currentMenu.name,
+            id: currentMenu.id,
+            price: currentMenu.price,
+            image: imageURL,
+            is_out_of_stock: false,
+            is_display: false,
+            sub_category_id: menus[currentMain].sub_categories[currentSub].id,
+        };
+        // console.log(data);
+        const result = await this.fetchDataAPI(MENU_MODIFY, 'POST', JSON.stringify(data));
+        if (result.status === 200) {
+            this.refreshMenuList();
+        }
+    }
+
+    async onCreateUpdate(currentMenu) {
+        const { menus, currentMain, currentSub, imageURL } = this.state;
+        const data = {
+            name: currentMenu.name,
+            id: currentMenu.id,
+            price: currentMenu.price,
+            image: imageURL,
+            is_out_of_stock: currentMenu.is_out_of_stock,
+            is_display: currentMenu.is_display,
+            sub_category_id: menus[currentMain].sub_categories[currentSub].id,
+        };
+        // console.log(data);
+        const result = await this.fetchDataAPI(MENU_MODIFY, 'POST', JSON.stringify(data));
+        if (result.status === 200) {
+            this.refreshMenuList();
+        }
+    }
+
+    async getCameraRollAsync() {
+        const { status, /* permissions */ } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+        if (status === 'granted') {
+        //   return Location.getCurrentPositionAsync({enableHighAccuracy: true});
+            this.selectPhoto();
+        } else {
+          throw new Error('Location permission not granted');
+        }
+    }
+
+    async selectPhoto() {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            base64: true,
+            allowsEditing: true,
+            aspect: [1, 1],
+        });
+        const imageUri = `data:image/jpg;base64,${result.base64}`;
+        if (this._isMounted) {
+            this.setState({ imageURL: imageUri, });
+        }
+    }
+
+    async selectCategory(data) {
+        await this.setState({ currentCategory: { ...INITIAL_CATEGORY, ...data } });
     }
 
     setSelect(condition, index, item) {
@@ -65,22 +195,34 @@ class MenuManagement extends React.Component {
                     currentSub: index 
                 });
             case MENU_SELECT:
-                return this.setState({ visible: true, currentMenu: item, });
+                return this.setState({ visible: true, currentMenu: item, imageURL: null });
             default: 
                 return;
         }   
     }
 
-    async fetchDataAPI(endpoint) {
+    async fetchDataAPI(endpoint, method = 'GET', body = null) {
         try {
+            const { token_type, access_token } = this.props.token;
             const response = await fetch(`${SERVER}${endpoint}`, {
-                headers: GET_API_HEADERS,
+                method,
+                headers: AUTH_HEADER(token_type, access_token),
+                body,
             });
-            const responseData = await response.json();
-            return responseData;
+            return response;
         } catch (error) {
             console.log(error);
             return [];
+        }
+    }
+
+    async refreshMenuList() {
+        const response = await this.fetchDataAPI(GET_MAIN_MENU);
+        const responseData = await response.json();
+        if (response.status === 200) {
+            this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null });
+            this.props.restaurantCollect(responseData);
+            this.componentDidMount();
         }
     }
     
@@ -112,13 +254,35 @@ class MenuManagement extends React.Component {
     }
 
     renderPopup() {
-        if (this.state.currentMenu !== undefined) {
+        const { currentMenu, visible } = this.state;
+        if (currentMenu !== undefined) {
             return (
                 <RestaurantPopup 
-                    visible={this.state.visible}
-                    menu={this.state.currentMenu}
-                    onCancel={() => this.setState({ visible: false, currentMenu: undefined, })}
-                    onSave={() => this.setState({ visible: false, })}
+                    visible={visible}
+                    menu={currentMenu}
+                    onCancel={() => this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null })}
+                    onSave={() => {
+                        this.renderAnimation();
+                        this.onCreateUpdate(this.state.currentMenu);
+                    }}
+                    onDelete={() => {
+                        this.renderAnimation();
+                        this.onDelete(this.state.currentMenu);
+                    }}
+                    onChangeName={(text) => this.setState({ 
+                        currentMenu: { ...currentMenu, name: text, } 
+                    })}
+                    onChangePrice={(text) => this.setState({ 
+                        currentMenu: { ...currentMenu, price: text } 
+                    })}
+                    onChangeOutOfStock={() => this.setState({ 
+                        currentMenu: { 
+                            ...currentMenu, 
+                            is_out_of_stock: !currentMenu.is_out_of_stock 
+                        } 
+                    })}
+                    onChangePicture={() => this.getCameraRollAsync()}
+                    imageURL={this.state.imageURL}
                 />
             );
         }
@@ -141,7 +305,7 @@ class MenuManagement extends React.Component {
                         currentMain,
                     )}
                     <AddButton 
-                        onPress={() => console.log('add')}
+                        onPress={() => this.selectCategory()}
                     />
                 </MenuManageContainer>
                 <MenuManageContainer
@@ -156,7 +320,9 @@ class MenuManagement extends React.Component {
                         CURRENT_SUB, 
                         currentSub,
                     )}
-                    <AddButton />
+                    <AddButton 
+                        onPress={() => this.selectCategory({ menus: '' })}
+                    />
                 </MenuManageContainer>
                 <MenuManageContainer
                     title='SUB CATEGORY'
@@ -170,18 +336,29 @@ class MenuManagement extends React.Component {
                         MENU_SELECT,
                     )}
                     <AddButton 
-                        onPress={() => this.setState({ visible: true, currentMenu: INITIAL_MENU, })}
+                        onPress={() => this.setState({ visible: true, currentMenu: INITIAL_MENU, imageURL: null, })}
                     />
                 </MenuManageContainer>
                 {this.renderPopup()}
+                <CategoryDetail 
+                    visible={this.state.currentCategory !== null} 
+                    data={this.state.currentCategory}
+                    onChangeText={(text) => this.setState({ currentCategory: {
+                        ...this.state.currentCategory, name: text,
+                    } })}
+                    onCancel={() => this.setState({ currentCategory: null })}
+                    onDelete={() => this.onDeleteCategory(this.state.currentCategory)}
+                    onSave={() => this.onCreateUpdateCategory(this.state.currentCategory)}
+                />
             </Row>
         );
     }
 }
 
-const mapStateToProps = ({ restaurant }) => {
+const mapStateToProps = ({ restaurant, auth }) => {
     const { restaurant_menu } = restaurant;
-    return { restaurant_menu };
+    const { token } = auth;
+    return { restaurant_menu, token };
 };
 
-export default connect(mapStateToProps)(MenuManagement);
+export default connect(mapStateToProps, { restaurantCollect })(MenuManagement);

@@ -10,6 +10,9 @@ export const CREATE_OFFLINE_ORDER = '/api/restaurant/create-offline-order/';
 export const GET_ORDER = '/api/restaurant/get-order-management/';
 export const GET_ORDER_DETAIL = '/api/restaurant/order-detail/';
 export const UPDATE_ORDER_STATUS = '/api/restaurant/update-order-status/';
+export const MENU_MODIFY = '/api/restaurant/create-edit-menu/';
+export const MAIN_CATEGORY_MODIFY = '/api/restaurant/create-edit-main-category/';
+export const SUB_CATEGORY_MODIFY = '/api/restaurant/create-edit-sub-category/';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';
 export const WALKIN_QUEUE = 'walkin_queue';
