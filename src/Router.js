@@ -8,6 +8,7 @@ import MainMenu from './components/MainMenu';
 import SideMenu from './components/SideMenu';
 import OrderManagement from './components/OrderManagement';
 import QueueManagement from './components/QueueManagement';
+import MenuManagement from './components/MenuManagement';
 
 class RouterComponent extends React.Component {
     render() {
@@ -15,11 +16,13 @@ class RouterComponent extends React.Component {
         return (
             <Router>
                 <Scene key='root' hideNavBar>
-                    <Router key='login' component={LoginForm} />
-                    <Drawer key='app' contentComponent={SideMenu} initial>
-                        <Scene key='container' hideNavBar>
+                    <Scene key='auth' initial hideNavBar>
+                        <Scene key='login' component={LoginForm} initial />
+                    </Scene>
+                    <Drawer key='app' contentComponent={SideMenu}>
+                        <Scene key='container' hideNavBar drawerLockMode='locked-closed'>
                             <Tabs key='tabber' tabBarStyle={tabBarStyle} showLabel={false}>
-                                <Scene key='main' icon={IconTab} iconName='home'>
+                                <Scene key='main' icon={IconTab} iconName='home' initial>
                                     <Scene 
                                         key='mainHome' 
                                         component={MainMenu} 
@@ -35,21 +38,24 @@ class RouterComponent extends React.Component {
                                         title='Order Management' 
                                         navBar={NavHamberger}
                                         initial
+                                        drawerLockMode='locked-open'
+                                        onEnter={() => Actions.refresh({ refresh: true })}
                                     />
                                 </Scene>
-                                <Scene key='queue' icon={IconTab} iconName='account-group' initial>
+                                <Scene key='queue' icon={IconTab} iconName='account-group'>
                                     <Scene 
                                         key='mainQueue' 
                                         component={QueueManagement} 
                                         title='Queue Management' 
                                         navBar={NavHamberger}
                                         initial
+                                        onEnter={() => Actions.refresh({ refresh: true })}
                                     />
                                 </Scene>
                                 <Scene key='menu' icon={IconTab} iconName='food'>
                                     <Scene 
                                         key='mainMenu' 
-                                        component={MainMenu} 
+                                        component={MenuManagement} 
                                         title='Restaurant' 
                                         navBar={NavHamberger}
                                         initial

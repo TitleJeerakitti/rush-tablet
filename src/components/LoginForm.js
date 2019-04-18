@@ -1,16 +1,170 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, } from 'react-native';
+import { 
+    View, 
+    Text, 
+    Image, 
+    TouchableOpacity, 
+    LayoutAnimation, 
+    UIManager, 
+    Platform, 
+    ActivityIndicator,
+    AsyncStorage, 
+} from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
 import { AuthBackground, Row, Center, Input } from './common';
 import { DARK_RED } from '../colors';
+import { SERVER, LOG_IN, CLIENT_SECRET, CLIENT_ID, CONTENT_TYPE_JSON_HEADERS, TOKEN_LOGIN, AUTH_HEADER } from '../config';
+import { authUserLogin, authTokenLogin, } from '../actions';
 
 class LoginForm extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
-            email: '',
-            password: '',
+            username: 'sivakornterk',
+            password: 'Terk1234',
+            error: '',
+            isLoading: false,
         };
+    }
+
+    componentDidMount() {
+        this._isMounted = true;
+        this.getData();
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
+    async getData() {
+        try {
+            const storageToken = await AsyncStorage.getItem('token');
+            const token = await JSON.parse(storageToken);
+            if (token !== null) {
+                console.log(token);
+                this.tokenLoginAPI(token);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async storeData(token) {
+        try {
+            await AsyncStorage.setItem('token', JSON.stringify(token));
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    async loginAPI() {
+        try {
+            if (this._isMounted) {
+                this.setState({ isLoading: true, });
+            }
+            const response = await fetch(`${SERVER}${LOG_IN}`, {
+                method: 'POST',
+                headers: CONTENT_TYPE_JSON_HEADERS,
+                body: JSON.stringify({
+                    client_secret: CLIENT_SECRET,
+                    client_id: CLIENT_ID,
+                    grant_type: 'password',
+                    username: this.state.username,
+                    password: this.state.password,
+                })
+            });
+            const responseData = await response.json();
+            if (this._isMounted && response.status === 200 && responseData.role === 'supplier') {
+                this.setState({ 
+                    username: '', 
+                    password: '',
+                    isLoading: false, 
+                });
+                await this.storeData(responseData.token);
+                this.props.authUserLogin(responseData);
+                Actions.replace('app');
+            } else if (this._isMounted) {
+                this.renderAnimation();
+                this.setState({ 
+                    error: 'Invalid Username or Password, try again!', 
+                    isLoading: false, 
+                    password: '',
+                });
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async tokenLoginAPI(token) {
+        try {
+            const { token_type, access_token } = token;
+            const response = await fetch(`${SERVER}${TOKEN_LOGIN}`, {
+                headers: AUTH_HEADER(token_type, access_token),
+            });
+            if (this._isMounted && response.status === 200) {
+                console.log(200, 'access_pass');
+                const responseData = await response.json();
+                this.props.authTokenLogin(responseData.user_info, token);
+                Actions.replace('app');
+            } else {
+                console.log(response.status);
+                this.refreshTokenAPI(token);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async refreshTokenAPI(token) {
+        try {
+            const response = await fetch(`${SERVER}${LOG_IN}`, {
+                method: 'POST',
+                headers: CONTENT_TYPE_JSON_HEADERS,
+                body: JSON.stringify({
+                    client_secret: CLIENT_SECRET,
+                    client_id: CLIENT_ID,
+                    grant_type: 'refresh_token',
+                    refresh_token: token.refresh_token,
+                }),
+            });
+            if (this._isMounted && response.status === 200) {
+                console.log(200, 'store');
+                const responseData = await response.json(); 
+                await this.storeData(responseData.token);
+                this.props.authUserLogin(responseData);
+                Actions.replace('app');
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    renderIndicator() {
+        if (!this.state.isLoading) {
+            return (
+                <TouchableOpacity
+                    activeOpacity={1}
+                    style={styles.buttonStyle}
+                    onPress={() => {
+                        this.loginAPI();
+                        this.renderAnimation();
+                    }}
+                >
+                    <Text style={styles.textWhite}>Log In</Text>
+                </TouchableOpacity>
+            );
+        }
+        return <ActivityIndicator size='large' />;
+    }
+
+    renderAnimation() {
+        LayoutAnimation.spring();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        }
     }
 
     render() {
@@ -20,9 +174,7 @@ class LoginForm extends React.Component {
             textWhite, 
             lineStyle, 
             inputStyle, 
-            buttonStyle 
         } = styles;
-        console.log(this.state.email, ' ', this.state.password);
         return (
             <AuthBackground>
                 <Row style={{ ...centerStyle, width: '80%' }}>
@@ -38,24 +190,28 @@ class LoginForm extends React.Component {
                     </Center>
                     <Center>
                         <Input 
-                            placeholder='E-mail' 
+                            placeholder='Username' 
                             style={inputStyle}
-                            value={this.state.email}
-                            onChangeText={(text) => this.setState({ email: text })}
+                            value={this.state.username}
+                            onChangeText={(text) => {
+                                this.renderAnimation();
+                                this.setState({ username: text, error: '' });
+                            }}
                         />
                         <Input 
                             placeholder='Password' 
                             style={{ ...inputStyle, marginTop: 20 }}
                             value={this.state.password}
-                            onChangeText={(text) => this.setState({ password: text })}
+                            secure
+                            onChangeText={(text) => {
+                                this.renderAnimation();
+                                this.setState({ password: text, error: '' });
+                            }}
                         />
-                        <TouchableOpacity
-                            activeOpacity={1}
-                            style={buttonStyle}
-                            onPress={() => Actions.app()}
-                        >
-                            <Text style={textWhite}>Log In</Text>
-                        </TouchableOpacity>
+                        <Text style={{ color: DARK_RED, paddingVertical: 5, }}>
+                            {this.state.error}
+                        </Text>
+                        {this.renderIndicator()}
                     </Center>
                 </Row>
             </AuthBackground>
@@ -94,9 +250,9 @@ const styles = {
         width: 300, 
         textAlign: 'center', 
         borderRadius: 18.5, 
-        marginTop: 40, 
+        marginTop: 20, 
         alignItems: 'center',
     }
 };
 
-export default LoginForm;
+export default connect(null, { authUserLogin, authTokenLogin, })(LoginForm);

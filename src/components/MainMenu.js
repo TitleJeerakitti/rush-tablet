@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, ScrollView, Text } from 'react-native';
+import { View, ScrollView, Text, FlatList, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { connect } from 'react-redux';
 import { 
     Row, 
     OrderDetail, 
@@ -9,40 +10,76 @@ import {
     SubCategory,
     MenuItem,
     Center,
+    Change,
 } from './common';
-import { EGG, } from '../colors';
+import { EGG, GRAY, } from '../colors';
+import { SERVER, GET_MAIN_MENU, CREATE_OFFLINE_ORDER, AUTH_HEADER } from '../config';
+import { restaurantCollect } from '../actions';
 
 class MainMenu extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             data: [],
             currentCategory: 0,
             cart: [],
             subTotal: 0,
+            visible: false,
+            isPaid: false,
+            formData: {},
         };
     }
 
     async componentDidMount() {
-        this.mounted = true;
+        this._isMounted = true;
         try {
-            const response = await fetch('http://localhost:3000/menu', {
+            const { token_type, access_token } = this.props.token;
+            const response = await fetch(`${SERVER}${GET_MAIN_MENU}`, {
                 headers: {
-                    'Cache-Control': 'no-cache',
-                    Authorization: `Token ${this.props.token}`,
+                    Authorization: `${token_type} ${access_token}`,
                 }
             });
-            if (this.mounted) {
+            if (this._isMounted) {
                 const responseData = await response.json();
-                await this.setState({ data: responseData });
+                this.setState({ data: responseData });
+                this.props.restaurantCollect(responseData);
             }
         } catch (error) {
             console.log(error);
         }
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.restaurant_menu !== this.props.restaurant_menu) {
+            this.setState({ data: this.props.restaurant_menu, currentCategory: 0, cart: [] });
+        }
+    }
+    
     componentWillUnmount() {
-        this.mounted = false;
+        this._isMounted = false;
+    }
+
+    async createOrderAPI() {
+        try {
+            const { token_type, access_token } = this.props.token;
+            const response = await fetch(`${SERVER}${CREATE_OFFLINE_ORDER}`, {
+                method: 'POST',
+                headers: AUTH_HEADER(token_type, access_token),
+                body: JSON.stringify({
+                    menus: this.manageFormData(),
+                    total: this.state.subTotal,
+                    special_request: '',
+                    discount: 0,
+                })
+            });
+            if (response.status === 200) {
+                this.renderAnimation();
+                this.setState({ isPaid: true, });
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     addMenu(data) {
@@ -106,32 +143,59 @@ class MainMenu extends React.Component {
             }
             return arr;
         }, []);
+        this.renderAnimation();
         this.setState({ 
             cart, 
             subTotal: this.state.subTotal - price,
         });
     }
 
-    renderCategory() {
-        if (this.state.data.length > 0) {
-            return this.state.data.map((mainCategory, index) => 
-                <RowCategoryItem 
-                    key={index}
-                    text={mainCategory.name} 
-                    selected={this.state.currentCategory === index} 
-                    onPress={() => this.setState({ currentCategory: index })}
-                />
-            );
+    manageFormData() {
+        const result = this.state.cart.reduce((arr, item) => {
+            arr.push({
+                menu_id: item.id,
+                amount: item.quantity,
+            });
+            return arr;
+        }, []);
+        return result;
+    }
+
+    _keyExtractor = (item, index) => index;
+
+    renderItem(item) {
+        return (
+            <MenuItem 
+                data={item} 
+                onPress={() => {
+                    this.renderAnimation();
+                    this.addMenu(item);
+                }} 
+            />
+        );
+    }
+
+    renderAnimation() {
+        LayoutAnimation.easeInEaseOut();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
         }
     }
 
     renderSubCategory() {
         if (this.state.data.length > 0) {
             return this.state.data[this.state.currentCategory]
-            .sub_categories.map((subCategory, index) => 
-                <SubCategory key={index} text={subCategory.name}>
-                    {this.renderMenuItem(subCategory.menus)}
-                </SubCategory>
+            .sub_categories.map((subCategory, index) => {
+                    if (subCategory.menus.length > 0) {
+                        return (
+                            <SubCategory key={index} text={subCategory.name}>
+                                {/* {this.renderMenuItem(subCategory.menus)} */}
+                                {this.renderMenu(subCategory.menus)}
+                            </SubCategory>
+                        );
+                    }
+                    return <View key={index} />;
+                }
             );
         }
     }
@@ -185,17 +249,58 @@ class MainMenu extends React.Component {
         return <Center><Text>ไม่มีรายการสินค้า</Text></Center>;
     }
 
+    renderCategory() {
+        if (this.state.data.length > 0) {
+            return this.state.data.map((mainCategory, index) => 
+                <RowCategoryItem 
+                    key={index}
+                    text={mainCategory.name} 
+                    selected={this.state.currentCategory === index} 
+                    onPress={() => {
+                        this.renderAnimation();
+                        this.setState({ currentCategory: index });
+                    }}
+                />
+            );
+        }
+    }
+
+    renderMenu(data) {
+        if (this.state.data.length > 0) {
+            return (
+                <FlatList
+                    data={data}
+                    keyExtractor={this._keyExtractor}
+                    renderItem={({ item, }) => 
+                        this.renderItem(item)
+                    }
+                    horizontal={false}
+                    numColumns={3}
+                />
+            );
+        }
+    }
+
     render() {
         const { rightContainer } = styles;
         return (
             <Row style={{ flex: 1 }}>
                 <View style={{ flex: 3 }}>
-                    <Row style={{ marginTop: 5 }}>
-                        {this.renderCategory()}
-                    </Row>
-                    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-                        {this.renderSubCategory()}
-                    </ScrollView>
+                    { this.state.data.length !== 0 ?
+                        <View style={{ flex: 1, }}>
+                            <Row style={{ marginTop: 5 }}>
+                                {this.renderCategory()}
+                            </Row>
+                            <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+                                {this.renderSubCategory()}
+                            </ScrollView>
+                        </View> :
+                        <Center>
+                            <Text style={{ fontWeight: 'bold', color: GRAY, }}>
+                                PLEASE CREATE MENU FOR YOUR RESTAURANT
+                            </Text>
+                        </Center>
+                    }
                 </View>
                 <View style={rightContainer}>
                     <OrderDetail />
@@ -204,10 +309,30 @@ class MainMenu extends React.Component {
                         price={(this.state.subTotal * 0.93).toFixed(2)}
                         vat={(this.state.subTotal * 0.07).toFixed(2)}
                         total={this.state.subTotal.toFixed(2)}
-                        onClear={() => this.setState({ cart: [], subTotal: 0 })}
-                        onSubmit={() => console.log('submit')}
+                        onClear={() => {
+                            this.renderAnimation();
+                            this.setState({ cart: [], subTotal: 0 });
+                        }}
+                        onSubmit={() => {
+                            if (this.state.subTotal > 0) {
+                                this.setState({ visible: true });
+                            }
+                        }}
                     />
                 </View>
+                <Change 
+                    visible={this.state.visible} 
+                    onPay={() => this.createOrderAPI()}
+                    onCancel={() => this.setState({ visible: false, isPaid: false, })}
+                    onClose={() => this.setState({ 
+                        visible: false, 
+                        isPaid: false, 
+                        cart: [], 
+                        subTotal: 0 
+                    })}
+                    total={this.state.subTotal}
+                    isPaid={this.state.isPaid}
+                />
             </Row>
         );
     }
@@ -226,4 +351,10 @@ const styles = {
     }
 };
 
-export default MainMenu;
+const mapStateToProps = ({ auth, restaurant }) => {
+    const { token } = auth;
+    const { restaurant_menu } = restaurant;
+    return { token, restaurant_menu };
+};
+
+export default connect(mapStateToProps, { restaurantCollect })(MainMenu);

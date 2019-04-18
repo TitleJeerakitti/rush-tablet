@@ -1,40 +1,69 @@
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Text, TouchableOpacity, View, Image, Dimensions, } from 'react-native';
 import { Row } from '../Row';
-import { DARK_RED } from '../../../colors';
+import { YELLOW, ORANGE } from '../../../colors';
 
-const MenuItem = ({ children, onPress }) => {
+const width = Dimensions.get('window').width * 0.6;
+const widthImage = (width - 60) / 3;
+
+const MenuItem = ({ onPress, data }) => {
     return (
-        <TouchableOpacity style={styles.containerStyle} onPress={onPress}>
-            <Row>
-                <Text style={styles.textStyle} numberOfLines={1}>{children}</Text>
-                <Icon name='ios-add-circle' type='ionicon' color={DARK_RED} size={30} />
-            </Row>
-        </TouchableOpacity>
+        <View style={styles.containerShadow}>
+            <TouchableOpacity style={styles.containerStyle} onPress={onPress}>
+                <Row>
+                    <Image 
+                        source={{ uri: data.picture }}
+                        resizeMode='cover'
+                        style={{ width: widthImage, height: widthImage, }}
+                    />
+                    <View style={styles.textContainer}>
+                        <Text 
+                            numberOfLines={2} 
+                            style={{ fontWeight: 'bold' }}
+                        >
+                            {data.name}
+                        </Text>
+                        <Text 
+                            style={{ color: ORANGE, fontWeight: 'bold', }}
+                        >
+                            {data.price} THB
+                        </Text>
+                    </View>
+                </Row>
+            </TouchableOpacity>
+        </View>
     );
 };
 
 const styles = {
-    containerStyle: {
-        flex: 1, 
-        margin: 10, 
-        justifyContent: 'center', 
-        padding: 10, 
-        backgroundColor: '#FFF', 
+    containerShadow: {
         shadowOffset: { 
             width: 0, 
-            height: 0 
+            height: 2 
         }, 
         shadowOpacity: 0.1, 
-        shadowRadius: 5, 
-        borderRadius: 20, 
+        shadowRadius: 10, 
         elevation: 5,
     },
-    textStyle: {
-        flex: 1,
-        alignSelf: 'center',
-    }
+    containerStyle: {
+        margin: 10, 
+        justifyContent: 'center',
+        borderRadius: 10, 
+        overflow: 'hidden'
+    },
+    textContainer: {
+        position: 'absolute', 
+        bottom: 0, 
+        width: '100%',
+        backgroundColor: 'rgba(255,255,255,0.8)', 
+        padding: 10,
+        shadowOffset: { 
+            width: 0, 
+            height: 0
+        }, 
+        shadowOpacity: 0.1, 
+        shadowRadius: 10, 
+    },
 };
 
 export { MenuItem };

@@ -1,28 +1,21 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, } from 'react-native';
 import { Row } from '../Row';
 import { GRAY } from '../../../colors';
+
+const WIDTH = (((Dimensions.get('window').width / 2) - 30) / 2) - 20;
 
 class QueueList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            type: this.substringQueue(this.props.queue, 'type'),
-            number: this.substringQueue(this.props.queue, 'number'),
+            type: this.props.queue.slice(0, 1),
+            number: this.props.queue.slice(1),
         };
     }
 
-    substringQueue(queue, role) {
-        if (role === 'type') {
-            return queue.substr(0, 1);
-        } else if (role === 'number') {
-            return queue.substr(2);
-        }
-        return;
-    }
-
     render() {
-        const { headerColor, buttonColor, onMore, onGrab } = this.props;
+        const { headerColor, } = this.props;
         const { type, number } = this.state;
         const { container, queueType, queueText, } = styles;
         return (
@@ -33,7 +26,7 @@ class QueueList extends React.Component {
                 <View style={{ padding: 10, flex: 1, }}>
                     <Text style={queueText}>{number}</Text>
                 </View>
-                <TouchableOpacity 
+                {/* <TouchableOpacity 
                     style={{ padding: 10, }}
                     onPress={onMore}
                 >
@@ -46,7 +39,7 @@ class QueueList extends React.Component {
                     <Text style={{ fontWeight: 'bold', color: buttonColor, }}>
                         GRAB
                     </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </Row>
         );
     }
@@ -65,6 +58,7 @@ const styles = {
         marginHorizontal: 10, 
         marginTop: 10,
         alignItems: 'center',
+        width: WIDTH,
     },
     queueType: {
         paddingVertical: 10, 

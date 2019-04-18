@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
+import { connect } from 'react-redux';
 import { 
     Row, 
     QueueCard, 
@@ -9,7 +10,7 @@ import {
     EmptyView 
 } from './common';
 import { ORANGE, YELLOW, BLACK_PINK, PINK, } from '../colors';
-import { GET_API_HEADERS, SERVER, ONLINE_QUEUE, WALKIN_QUEUE } from '../config';
+import { SERVER, GET_QUEUE, AUTH_HEADER } from '../config';
 
 class QueueManagement extends React.Component {
     constructor(props) {
@@ -22,21 +23,28 @@ class QueueManagement extends React.Component {
     }
 
     async componentDidMount() {
-        const [online, walkin] = await Promise.all([
-            this.fetchDataAPI(ONLINE_QUEUE),
-            this.fetchDataAPI(WALKIN_QUEUE),
-        ]);
+        const { offline_queue, online_queue } = await this.fetchDataAPI(GET_QUEUE);
         await this.setState({
-            onlineOrder: online,
-            walkinOrder: walkin,
+            onlineOrder: online_queue,
+            walkinOrder: offline_queue,
             loading: false,
         });
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        // to refresh must not equal to loading now (first start -> after loading always false)
+        // and loading now and past must be equal
+        if ((this.props.refresh !== this.state.loading) && (prevState.loading === this.state.loading)) {
+            this.setState({ loading: true });
+            this.componentDidMount();
+        }
+    }
+
     async fetchDataAPI(endpoint) {
         try {
+            const { token_type, access_token } = this.props.token;
             const response = await fetch(`${SERVER}${endpoint}`, {
-                headers: GET_API_HEADERS,
+                headers: AUTH_HEADER(token_type, access_token),
             });
             const responseData = await response.json();
             return responseData;
@@ -46,15 +54,15 @@ class QueueManagement extends React.Component {
         }
     }
 
-    renderQueueList(items, headerColor, buttonColor, onGrab) {
+    renderQueueList(items, headerColor, buttonColor) {
         return items.map(item =>
             <QueueList 
-                key={item.order_id}
+                key={item.queue_number}
                 queue={item.queue_number} 
                 headerColor={headerColor}
                 buttonColor={buttonColor}
-                onMore={() => console.log('MORE of ', item.order_id)}
-                onGrab={() => console.log(onGrab)}
+                // onMore={() => console.log('MORE of ', item.order_id)}
+                // onGrab={() => console.log(onGrab)}
             />
         );
     }
@@ -69,7 +77,7 @@ class QueueManagement extends React.Component {
                 <View style={{ flex: 1, }}>
                     <QueueCard 
                         header='Online Queue'
-                        queue={onlineOrder.length > 0 ? onlineOrder[0].queue_number : 'LOADING'}
+                        queue={onlineOrder.length > 0 ? onlineOrder[0].queue_number : 'NO QUEUE'}
                         colors={[ORANGE, YELLOW]}
                         buttonColor={YELLOW}
                         onAgain={() => console.log('Again')}
@@ -81,14 +89,27 @@ class QueueManagement extends React.Component {
                             emptyText='EMPTY QUEUE'
                             condition={onlineOrder.length > 0}
                         >
-                            {this.renderQueueList(onlineOrder, ORANGE, YELLOW, ONLINE_QUEUE)}
+                            {/* {this.renderQueueList(onlineOrder, ORANGE, YELLOW, ONLINE_QUEUE)} */}
+                            <FlatList 
+                                style={{ padding: 5, }}
+                                data={onlineOrder}
+                                keyExtractor={(item) => item.queue_number}
+                                renderItem={({ item }) => 
+                                    <QueueList 
+                                        queue={item.queue_number} 
+                                        headerColor={ORANGE}
+                                        buttonColor={YELLOW}
+                                    />
+                                }
+                                numColumns={2}
+                            />
                         </EmptyView>
                     </ContainerBorderRadiusTop>
                 </View>
                 <View style={{ flex: 1, }}>
                     <QueueCard 
                         header='Walk-In Queue'
-                        queue={walkinOrder.length > 0 ? walkinOrder[0].queue_number : 'LOADING'}
+                        queue={walkinOrder.length > 0 ? walkinOrder[0].queue_number : 'NO QUEUE'}
                         colors={[BLACK_PINK, PINK]}
                         buttonColor={PINK}
                         onAgain={() => console.log('Again')}
@@ -100,8 +121,20 @@ class QueueManagement extends React.Component {
                             emptyText='EMPTY QUEUE'
                             condition={walkinOrder.length > 0}
                         >
-                            {this.renderQueueList(
-                                walkinOrder, BLACK_PINK, PINK, WALKIN_QUEUE)}
+                            {/* {this.renderQueueList(walkinOrder, BLACK_PINK, PINK, WALKIN_QUEUE)} */}
+                            <FlatList 
+                                style={{ padding: 5, }}
+                                data={walkinOrder}
+                                keyExtractor={(item) => item.queue_number}
+                                renderItem={({ item }) => 
+                                    <QueueList 
+                                        queue={item.queue_number} 
+                                        headerColor={BLACK_PINK}
+                                        buttonColor={PINK}
+                                    />
+                                }
+                                numColumns={2}
+                            />
                         </EmptyView>
                     </ContainerBorderRadiusTop>
                 </View>
@@ -110,6 +143,11 @@ class QueueManagement extends React.Component {
     }
 }
 
+const mapStateToProps = ({ auth }) => {
+    const { token } = auth;
+    return { token };
+};
+
 const styles = {
     textDescription: {
         padding: 10, 
@@ -117,4 +155,4 @@ const styles = {
     },
 };
 
-export default QueueManagement;
+export default connect(mapStateToProps)(QueueManagement);

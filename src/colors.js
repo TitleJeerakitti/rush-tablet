@@ -1,3 +1,4 @@
+export const BLACK_RED = '#C60000';
 export const DARK_RED = '#FF220D';
 export const ORANGE = '#FF6000';
 export const GREEN = '#00743E';
