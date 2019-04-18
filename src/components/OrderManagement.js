@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, RefreshControl } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { connect } from 'react-redux';
 import { Row, SeleteItem, OrderItem, EmptyView, Change, } from './common';
@@ -34,6 +34,8 @@ class OrderManagement extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            refresh: false,
+            canLoad: true,
             visible: false,
             endDate: this.formatDate(new Date()),
             startDate: this.formatDate(new Date()),
@@ -50,14 +52,30 @@ class OrderManagement extends React.Component {
         this.getOrderAPI();
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        // to refresh must not equal to loading now (first start -> after loading always false)
+        // and loading now and past must be equal
+        if (this.props.refresh && prevState.canLoad && this.state.canLoad 
+            && !this.state.isPay && !this.state.isShowDetail) {
+            this.componentDidMount();
+        }
+    }
+
     async getOrderAPI() {
         try {
+            await this.setState({ canLoad: false, });
             const { token_type, access_token } = this.props.token;
             const response = await fetch(`${SERVER}${GET_ORDER}`, {
                 headers: AUTH_HEADER(token_type, access_token),
             });
             const resposneData = await response.json();
-            await this.setState({ data: resposneData, isShowDetail: false, orderDetail: {} });
+            await this.setState({ 
+                data: resposneData, 
+                isShowDetail: false, 
+                orderDetail: {}, 
+                canLoad: true, 
+                refresh: false,
+            });
         } catch (error) {
             console.log(error);
         }
@@ -201,6 +219,15 @@ class OrderManagement extends React.Component {
                             onExtraButton={() => {
                                 this.renderAnimation();
                                 this.statusUpdate(item);
+                            }}
+                        />
+                    }
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.refresh}
+                            onRefresh={() => {
+                                this.setState({ refresh: true, });
+                                this.getOrderAPI();
                             }}
                         />
                     }

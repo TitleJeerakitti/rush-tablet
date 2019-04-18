@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal, Text, View, Image, TouchableOpacity, Alert, KeyboardAvoidingView } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Modal, Text, View, Image, TouchableOpacity, Alert, KeyboardAvoidingView, TextInput } from 'react-native';
+import { Icon, Input } from 'react-native-elements';
 import { Constants, } from 'expo';
 import { Row } from '../Row';
 import { ORANGE, LIGHT_GRAY, GRAY, DARK_RED } from '../../../colors';
@@ -127,7 +127,7 @@ class RestaurantPopup extends React.Component {
 
 const styles = {
     container: { 
-        flex: 1,
+        // flex: 1,
         marginTop: Constants.statusBarHeight, 
     },
     popupContainer: { 

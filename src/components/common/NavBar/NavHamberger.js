@@ -31,7 +31,6 @@ class NavBar extends React.Component {
 
     render() {
         const { title } = this.props;
-        console.log(this.props.userInfo.is_open)
         return (
             <NavContainer>
                 <NavCard>

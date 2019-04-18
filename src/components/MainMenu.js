@@ -12,7 +12,7 @@ import {
     Center,
     Change,
 } from './common';
-import { EGG, } from '../colors';
+import { EGG, GRAY, } from '../colors';
 import { SERVER, GET_MAIN_MENU, CREATE_OFFLINE_ORDER, AUTH_HEADER } from '../config';
 import { restaurantCollect } from '../actions';
 
@@ -47,6 +47,12 @@ class MainMenu extends React.Component {
             }
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.restaurant_menu !== this.props.restaurant_menu) {
+            this.setState({ data: this.props.restaurant_menu, currentCategory: 0, cart: [] });
         }
     }
     
@@ -280,12 +286,21 @@ class MainMenu extends React.Component {
         return (
             <Row style={{ flex: 1 }}>
                 <View style={{ flex: 3 }}>
-                    <Row style={{ marginTop: 5 }}>
-                        {this.renderCategory()}
-                    </Row>
-                    <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
-                        {this.renderSubCategory()}
-                    </ScrollView>
+                    { this.state.data.length !== 0 ?
+                        <View style={{ flex: 1, }}>
+                            <Row style={{ marginTop: 5 }}>
+                                {this.renderCategory()}
+                            </Row>
+                            <ScrollView style={{ flex: 1, backgroundColor: 'white' }}>
+                                {this.renderSubCategory()}
+                            </ScrollView>
+                        </View> :
+                        <Center>
+                            <Text style={{ fontWeight: 'bold', color: GRAY, }}>
+                                PLEASE CREATE MENU FOR YOUR RESTAURANT
+                            </Text>
+                        </Center>
+                    }
                 </View>
                 <View style={rightContainer}>
                     <OrderDetail />
@@ -336,9 +351,10 @@ const styles = {
     }
 };
 
-const mapStateToProps = ({ auth }) => {
+const mapStateToProps = ({ auth, restaurant }) => {
     const { token } = auth;
-    return { token };
+    const { restaurant_menu } = restaurant;
+    return { token, restaurant_menu };
 };
 
 export default connect(mapStateToProps, { restaurantCollect })(MainMenu);

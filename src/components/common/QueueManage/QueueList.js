@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, } from 'react-native';
+import { View, Text, TouchableOpacity, Dimensions, } from 'react-native';
 import { Row } from '../Row';
 import { GRAY } from '../../../colors';
+
+const WIDTH = (((Dimensions.get('window').width / 2) - 30) / 2) - 20;
 
 class QueueList extends React.Component {
     constructor(props) {
@@ -56,6 +58,7 @@ const styles = {
         marginHorizontal: 10, 
         marginTop: 10,
         alignItems: 'center',
+        width: WIDTH,
     },
     queueType: {
         paddingVertical: 10, 

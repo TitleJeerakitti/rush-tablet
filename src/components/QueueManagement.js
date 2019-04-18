@@ -31,6 +31,15 @@ class QueueManagement extends React.Component {
         });
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        // to refresh must not equal to loading now (first start -> after loading always false)
+        // and loading now and past must be equal
+        if ((this.props.refresh !== this.state.loading) && (prevState.loading === this.state.loading)) {
+            this.setState({ loading: true });
+            this.componentDidMount();
+        }
+    }
+
     async fetchDataAPI(endpoint) {
         try {
             const { token_type, access_token } = this.props.token;
@@ -45,7 +54,7 @@ class QueueManagement extends React.Component {
         }
     }
 
-    renderQueueList(items, headerColor, buttonColor, onGrab) {
+    renderQueueList(items, headerColor, buttonColor) {
         return items.map(item =>
             <QueueList 
                 key={item.queue_number}
@@ -82,6 +91,7 @@ class QueueManagement extends React.Component {
                         >
                             {/* {this.renderQueueList(onlineOrder, ORANGE, YELLOW, ONLINE_QUEUE)} */}
                             <FlatList 
+                                style={{ padding: 5, }}
                                 data={onlineOrder}
                                 keyExtractor={(item) => item.queue_number}
                                 renderItem={({ item }) => 
@@ -91,6 +101,7 @@ class QueueManagement extends React.Component {
                                         buttonColor={YELLOW}
                                     />
                                 }
+                                numColumns={2}
                             />
                         </EmptyView>
                     </ContainerBorderRadiusTop>
@@ -122,6 +133,7 @@ class QueueManagement extends React.Component {
                                         buttonColor={PINK}
                                     />
                                 }
+                                numColumns={2}
                             />
                         </EmptyView>
                     </ContainerBorderRadiusTop>

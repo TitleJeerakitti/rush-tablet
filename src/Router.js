@@ -39,6 +39,7 @@ class RouterComponent extends React.Component {
                                         navBar={NavHamberger}
                                         initial
                                         drawerLockMode='locked-open'
+                                        onEnter={() => Actions.refresh({ refresh: true })}
                                     />
                                 </Scene>
                                 <Scene key='queue' icon={IconTab} iconName='account-group'>
@@ -48,6 +49,7 @@ class RouterComponent extends React.Component {
                                         title='Queue Management' 
                                         navBar={NavHamberger}
                                         initial
+                                        onEnter={() => Actions.refresh({ refresh: true })}
                                     />
                                 </Scene>
                                 <Scene key='menu' icon={IconTab} iconName='food'>

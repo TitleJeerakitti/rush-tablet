@@ -32,7 +32,7 @@ class CategoryDetail extends React.Component {
             >
                 <KeyboardAvoidingView style={{ flex: 1, }} behavior='padding' enabled>
                     <Center style={styles.container}>
-                        <View style={styles.containerPopUp}>
+                        <TouchableOpacity style={styles.containerPopUp}>
                             <View style={{ padding: 20, }}>
                                 <InputWithDescription 
                                     title='Category'
@@ -56,7 +56,7 @@ class CategoryDetail extends React.Component {
                                     <Text style={{ color: '#FFF' }}>SAVE</Text>
                                 </TouchableOpacity>
                             </Row>
-                        </View>
+                        </TouchableOpacity>
                     </Center>
                 </KeyboardAvoidingView>
             </Modal>
