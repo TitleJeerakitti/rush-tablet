@@ -1,12 +1,11 @@
-import React from 'react'
-import { View, Text, TouchableOpacity, Picker, StyleSheet } from 'react-native';
-import { Icon } from 'react-native-elements';
-import RNPickerSelect from 'react-native-picker-select';
-import DateTimePicker from 'react-native-modal-datetime-picker';
-import { LinearGradient } from 'expo';
+import React from 'react';
+import { View, UIManager, LayoutAnimation, Platform, Text, FlatList, Image, } from 'react-native';
 import { connect } from 'react-redux';
-import { Row } from './common';
-import { BLACK_PINK, PINK, ORANGE, YELLOW, BLACK_RED, DARK_RED, DARK_ORANGE } from '../colors';
+import { Icon } from 'react-native-elements';
+import moment from 'moment';
+import { SearchBar, Row, CardSection, RankingState, Center, MenuRankingCard, Space } from './common';
+import { SERVER, GET_REPORT, AUTH_HEADER } from '../config';
+import { GRAY, LIGHT_GRAY, EGG, LIGHT_YELLOW } from '../colors';
 
 const CHOICE = [
     {
@@ -38,11 +37,51 @@ class DataAnalyze extends React.Component {
         super(props);
         this.state = {
             status: null,
-            start_date: 'START DATE',
-            end_date: 'END DATE',
+            start_date: null,
+            end_date: null,
             isDateTimePickerVisible: false,
             select: null,
+            month: null,
+            year: null,
+            revenue: [],
+            top_menu: [],
+            order: [],
         };
+    }
+
+    async getReport() {
+        try {
+            const { token_type, access_token } = this.props.token;
+            const response = await fetch(`${SERVER}${GET_REPORT}`, {
+                method: 'POST',
+                headers: AUTH_HEADER(token_type, access_token),
+                body: JSON.stringify({
+                    status: this.state.status,
+                    start_date: this.selectStartDate(),
+                    end_date: moment(this.state.end_date).format('YYYY-M-D'),
+                }),
+            });
+            const responseData = await response.json();
+            // console.log(responseData);
+            if (response.status === 200) {
+                this.setState({
+                    revenue: responseData.total,
+                    top_menu: responseData.top_menu,
+                    order: responseData.order,
+                });
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    selectStartDate() {
+        if (this.state.status === 4) {
+            return `${this.state.year}-01-01`;
+        } else if (this.state.status === 3) {
+            return `${this.state.year}-${this.state.month}-01`;
+        }
+        return moment(this.state.start_date).format('YYYY-M-D');
     }
 
     changeDate(date) {
@@ -58,97 +97,87 @@ class DataAnalyze extends React.Component {
         this.setState({ isDateTimePickerVisible: true, select });
     }
 
+    renderAnimation() {
+        LayoutAnimation.easeInEaseOut();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        }
+    }
+
+    renderMenuRanking() {
+        if (this.state.top_menu.length > 0) {
+            return (<RankingState topMenu={this.state.top_menu} />);
+        }
+        return (
+            <Center>
+                <Text>NO DATA</Text>
+            </Center>
+        );
+    }
+
     render() {
         return (
             <View style={{ flex: 1, }}>
-                <LinearGradient
-                    colors={[ORANGE, YELLOW]}
-                    start={{ x: 0.0, y: 0.5 }} 
-                    end={{ x: 0.8, y: 0.7 }}
-                    style={{ margin: 10, borderRadius: 10 }}
-                >
-                    <Row>
-                        <RNPickerSelect
-                            placeholder={placeholder}
-                            items={CHOICE}
-                            onValueChange={value => {
-                                this.setState({
-                                    status: value,
-                                });
-                            }}
-                            style={pickerSelectStyles}
-                            value={this.state.status}
-                            Icon={() => <Icon name='chevron-down-circle-outline' type='material-community' color={ORANGE} />}
+                <SearchBar 
+                    placeholder={placeholder}
+                    choice={CHOICE}
+                    status={this.state.status} 
+                    start_date={this.state.start_date} 
+                    end_date={this.state.end_date} 
+                    isDateTimePickerVisible={this.state.isDateTimePickerVisible} 
+                    select={this.state.select} 
+                    onValueChange={value => {
+                        this.renderAnimation();
+                        this.setState({
+                            status: value,
+                        });
+                    }} 
+                    onPressStartDate={() => this.openDateTimePicker('start_date')}
+                    onPressEndDate={() => this.openDateTimePicker('end_date')}
+                    onConfirm={this.changeDate.bind(this)}
+                    onCancel={() => this.closeDateTimePicker()}
+                    onSearch={() => this.getReport()}
+
+                    onYearChange={(value) => this.setState({ year: value })}
+                    year={this.state.year}
+                    onMonthChange={(value) => this.setState({ month: value })}
+                    month={this.state.month}
+                />
+                <Row style={{ flex: 1, }}>
+                    <View style={{ flex: 2, marginHorizontal: 10, backgroundColor: '#FFF', borderTopLeftRadius: 10, borderTopRightRadius: 10, }}>
+                        <CardSection>
+                            <Text style={{ fontWeight: 'bold' }}>MENU RANKING</Text>
+                        </CardSection>
+                        { this.renderMenuRanking() }
+                        <CardSection style={{ marginBottom: 5, }}>
+                            <Text style={{ fontWeight: 'bold' }}>OTHERS</Text>
+                        </CardSection>
+                        <FlatList 
+                            data={this.state.top_menu.slice(3)}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item, index }) => 
+                                <MenuRankingCard 
+                                    name={item.name}
+                                    amount={item.amount}
+                                    rank={index + 4}
+                                    image={item.image}
+                                />
+                            }
+                            ListFooterComponent={() => <View style={{ marginTop: 10, }} />}
                         />
-                        <Row style={{ flex: 1, paddingVertical: 10, paddingHorizontal: 20, alignItems: 'center' }}>
-                            <TouchableOpacity 
-                                style={{ paddingVertical: 5, paddingHorizontal: 10, backgroundColor: '#FFF', borderRadius: 5, flexDirection: 'row', alignItems: 'center', width: 250, }}
-                                onPress={() => this.openDateTimePicker('start_date')}
-                            >
-                                <Icon name='ios-calendar' type='ionicon' />
-                                <Text style={{ flex: 1, fontSize: 20, fontWeight: 'bold', marginLeft: 10, textAlign: 'center' }}>{this.state.start_date === 'START DATE' ? this.state.start_date : this.state.start_date.toDateString()}</Text>
-                            </TouchableOpacity>
-                            <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white', paddingHorizontal: 20, }}>TO</Text>
-                            <TouchableOpacity 
-                                style={{ paddingVertical: 5, paddingHorizontal: 10, backgroundColor: '#FFF', borderRadius: 5, flexDirection: 'row', alignItems: 'center', width: 250, }}
-                                onPress={() => this.openDateTimePicker('end_date')}
-                            >
-                                <Icon name='ios-calendar' type='ionicon' />
-                                <Text style={{ flex: 1, fontSize: 20, fontWeight: 'bold', marginLeft: 10, textAlign: 'center' }}>{this.state.end_date === 'END DATE' ? this.state.end_date : this.state.end_date.toDateString()}</Text>
-                            </TouchableOpacity>
-                        </Row>
-                        <DateTimePicker
-                            isVisible={this.state.isDateTimePickerVisible}
-                            onConfirm={this.changeDate.bind(this)}
-                            onCancel={() => this.setState({ isDateTimePickerVisible: false })}
-                            minimumDate={this.state.start_date === 'START DATE' ? undefined : this.state.start_date} // bug
-                            maximumDate={this.state.end_date === 'END DATE' ? new Date() : this.state.end_date} // bug
-                            date={(this.state[this.state.select] === undefined || (this.state[this.state.select] === 'START DATE') || (this.state[this.state.select] === 'END DATE')) ?
-                                new Date() : this.state[this.state.select]}
-                        />
-                        <TouchableOpacity 
-                            style={{ backgroundColor: ORANGE, paddingVertical: 10, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' }}
-                            // onPress={() => this.setState({ isDateTimePickerVisible: true, })}
-                        >
-                            <Icon name='ios-search' type='ionicon' color='white' size={32} />
-                        </TouchableOpacity>
-                    </Row>
-                </LinearGradient>
+                    </View>
+                    <View style={{ flex: 3 }}>
+                        <Text>Test</Text>
+                    </View>
+                </Row>
             </View>
         );
     }
 }
 
-const pickerSelectStyles = StyleSheet.create({
-    inputIOS: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        paddingVertical: 18,
-        paddingHorizontal: 12,
-        color: ORANGE,
-        paddingRight: 32, // to ensure the text is never behind the icon
-        textAlign: 'center',
-        backgroundColor: '#FFF',
-        width: 200,
-    },
-    inputAndroid: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        padding: 10,
-        color: 'white',
-        paddingRight: 40, // to ensure the text is never behind the icon
-    },
-    placeholder: {
-        color: '#CCC'
-    },
-    iconContainer: {
-        top: 20,
-        right: 12, 
-    }
-});
+const mapStateToProps = ({ auth, }) => {
+    const { token } = auth;
+    return { token };
+};
 
-// const mapStateToProps = ({ restaurant, auth, }) => {
-//     const { userInfo } = restaurant;
-// };
-
-export default connect()(DataAnalyze);
+export default connect(mapStateToProps)(DataAnalyze);

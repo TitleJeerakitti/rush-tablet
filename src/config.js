@@ -15,6 +15,7 @@ export const MENU_MODIFY = '/api/restaurant/create-edit-menu/';
 export const MAIN_CATEGORY_MODIFY = '/api/restaurant/create-edit-main-category/';
 export const SUB_CATEGORY_MODIFY = '/api/restaurant/create-edit-sub-category/';
 export const GET_QUEUE = '/api/restaurant/get-queue/'; 
+export const GET_REPORT = '/api/restaurant/get-report/';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';
 export const WALKIN_QUEUE = 'walkin_queue';

@@ -3,6 +3,7 @@ export * from './NavBar';
 export * from './OrderDetail';
 export * from './Menu';
 export * from './QueueManage';
+export * from './Report';
 
 export * from './Row';
 export * from './Center';
@@ -20,3 +21,6 @@ export * from './Space';
 export * from './CheckBox';
 export * from './MenuListItem';
 export * from './CustomerDetail';
+export * from './SearchBar';
+export * from './CardSection';
+export * from './RankingState';
