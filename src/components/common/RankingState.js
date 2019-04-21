@@ -9,23 +9,47 @@ const IMAGE_WIDTH = (((Dimensions.get('window').width * 0.4) - 20) / 3) - 40;
 // https://imgur.com/XyV6nXk
 
 class RankingState extends React.Component {
+    renderImage(index) {
+        const { topMenu } = this.props;
+        if (topMenu[index] !== undefined) {
+            return topMenu[index].image;
+        }
+        return 'https://imgur.com/XyV6nXk.png';
+    }
+
+    renderName(index) {
+        const { topMenu } = this.props;
+        if (topMenu[index] !== undefined) {
+            return topMenu[index].name;
+        }
+        return 'NOT FOUND';
+    }
+
+    renderAmount(index) {
+        const { topMenu } = this.props;
+        if (topMenu[index] !== undefined) {
+            return topMenu[index].amount;
+        }
+        return 'NONE';
+    }
+
     render() {
         return (
-            <CardSection>
+            <CardSection style={{ backgroundColor: 'red'}}>
                 <Row style={styles.container}>
                     <View style={styles.subContainer}>
                         <View style={styles.shadowStyle} >
                             <Image 
                                 style={styles.imageStyle} 
                                 resizeMode='cover'
-                                source={{ uri: this.props.topMenu[1].image }}
+                                source={{ uri: this.renderImage(1) }}
                             />
                         </View>
                         <Text style={styles.menuText} numberOfLines={1}>
-                            {this.props.topMenu[1].name}
+                            {this.renderName(1)}
                         </Text>
                         <Row>
-                            <Text style={{ marginRight: 5, color: GRAY }}>{this.props.topMenu[1].amount}</Text>
+                            <Text style={{ marginRight: 5, color: GRAY }}>{this.renderAmount(1)}</Text>
                             <Icon name='restaurant-menu' type='material' size={16} color={GRAY} />
                         </Row>
                         <View 
@@ -44,14 +68,14 @@ class RankingState extends React.Component {
                             <Image 
                                 style={styles.imageStyle} 
                                 resizeMode='cover'
-                                source={{ uri: this.props.topMenu[0].image }}
+                                source={{ uri: this.renderImage(0) }}
                             />
                         </View>
                         <Text style={styles.menuText} numberOfLines={1}>
-                            {this.props.topMenu[0].name}
+                            {this.renderName(0)}
                         </Text>
                         <Row>
-                            <Text style={{ marginRight: 5, color: GRAY }}>{this.props.topMenu[0].amount}</Text>
+                            <Text style={{ marginRight: 5, color: GRAY }}>{this.renderAmount(0)}</Text>
                             <Icon name='restaurant-menu' type='material' size={16} color={GRAY} />
                         </Row>
                         <View 
@@ -72,14 +96,14 @@ class RankingState extends React.Component {
                             <Image 
                                 style={styles.imageStyle} 
                                 resizeMode='cover'
-                                source={{ uri: this.props.topMenu[2].image }}
+                                source={{ uri: this.renderImage(2) }}
                             />
                         </View>
                         <Text style={styles.menuText} numberOfLines={1}>
-                            {this.props.topMenu[2].name}
+                            {this.renderName(2)}
                         </Text>
                         <Row>
-                            <Text style={{ marginRight: 5, color: GRAY }}>{this.props.topMenu[2].amount}</Text>
+                            <Text style={{ marginRight: 5, color: GRAY }}>{this.renderAmount(2)}</Text>
                             <Icon name='restaurant-menu' type='material' size={16} color={GRAY} />
                         </Row>
                         <View 
