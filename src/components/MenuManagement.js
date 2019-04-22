@@ -53,9 +53,13 @@ class MenuManagement extends React.Component {
         switch (condition) {
             case CURRENT_MAIN:
             case CURRENT_SUB:
-                return this.setState({ currentCategory: item });
+                return this._isMounted && this.setState({ currentCategory: item });
             case MENU_SELECT:
-                return this.setState({ visible: true, currentMenu: item, imageURL: null });
+                return this._isMounted && this.setState({ 
+                    visible: true, 
+                    currentMenu: item, 
+                    imageURL: null 
+                });
             default: 
                 return;
         }   
@@ -71,7 +75,7 @@ class MenuManagement extends React.Component {
             };
             const result = await this.fetchDataAPI(SUB_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
             if (result.status === 200) {
-                this.setState({ currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
+                this._isMounted && this.setState({ currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
                 this.refreshMenuList();
             }
         } else {
@@ -82,7 +86,7 @@ class MenuManagement extends React.Component {
             };
             const result = await this.fetchDataAPI(MAIN_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
             if (result.status === 200) {
-                this.setState({ currentMain: null, currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
+                this._isMounted && this.setState({ currentMain: null, currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
                 this.refreshMenuList();
             }
         }
@@ -98,7 +102,7 @@ class MenuManagement extends React.Component {
             };
             const result = await this.fetchDataAPI(SUB_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
             if (result.status === 200) {
-                this.setState({ currentCategory: null });
+                this._isMounted && this.setState({ currentCategory: null });
                 this.refreshMenuList();
             }
         } else {
@@ -109,7 +113,7 @@ class MenuManagement extends React.Component {
             };
             const result = await this.fetchDataAPI(MAIN_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
             if (result.status === 200) {
-                this.setState({ currentCategory: null });
+                this._isMounted && this.setState({ currentCategory: null });
                 this.refreshMenuList();
             }
         }
@@ -174,31 +178,35 @@ class MenuManagement extends React.Component {
     }
 
     async selectCategory(data) {
-        await this.setState({ currentCategory: { ...INITIAL_CATEGORY, ...data } });
+        if (this._isMounted) {
+            await this.setState({ currentCategory: { ...INITIAL_CATEGORY, ...data } });
+        }
     }
 
     setSelect(condition, index, item) {
-        switch (condition) {
-            case CURRENT_MAIN: 
-                if (this.state.currentMain === index) {
+        if (this._isMounted) {
+            switch (condition) {
+                case CURRENT_MAIN: 
+                    if (this.state.currentMain === index) {
+                        return;
+                    }
+                    return this.setState({ 
+                        currentMain: index, 
+                        currentSub: null 
+                    });
+                case CURRENT_SUB:
+                    if (this.state.currentSub === index) {
+                        return;
+                    }
+                    return this.setState({ 
+                        currentSub: index 
+                    });
+                case MENU_SELECT:
+                    return this.setState({ visible: true, currentMenu: item, imageURL: null });
+                default: 
                     return;
-                }
-                return this.setState({ 
-                    currentMain: index, 
-                    currentSub: null 
-                });
-            case CURRENT_SUB:
-                if (this.state.currentSub === index) {
-                    return;
-                }
-                return this.setState({ 
-                    currentSub: index 
-                });
-            case MENU_SELECT:
-                return this.setState({ visible: true, currentMenu: item, imageURL: null });
-            default: 
-                return;
-        }   
+            }   
+        }
     }
 
     async fetchDataAPI(endpoint, method = 'GET', body = null) {
@@ -260,7 +268,7 @@ class MenuManagement extends React.Component {
                 <RestaurantPopup 
                     visible={visible}
                     menu={currentMenu}
-                    onCancel={() => this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null })}
+                    onCancel={() => this._isMounted && this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null })}
                     onSave={() => {
                         this.renderAnimation();
                         this.onCreateUpdate(this.state.currentMenu);
@@ -269,13 +277,13 @@ class MenuManagement extends React.Component {
                         this.renderAnimation();
                         this.onDelete(this.state.currentMenu);
                     }}
-                    onChangeName={(text) => this.setState({ 
+                    onChangeName={(text) => this._isMounted && this.setState({ 
                         currentMenu: { ...currentMenu, name: text, } 
                     })}
-                    onChangePrice={(text) => this.setState({ 
+                    onChangePrice={(text) => this._isMounted && this.setState({ 
                         currentMenu: { ...currentMenu, price: text } 
                     })}
-                    onChangeOutOfStock={() => this.setState({ 
+                    onChangeOutOfStock={() => this._isMounted && this.setState({ 
                         currentMenu: { 
                             ...currentMenu, 
                             is_out_of_stock: !currentMenu.is_out_of_stock 
@@ -336,17 +344,17 @@ class MenuManagement extends React.Component {
                         MENU_SELECT,
                     )}
                     <AddButton 
-                        onPress={() => this.setState({ visible: true, currentMenu: INITIAL_MENU, imageURL: null, })}
+                        onPress={() => this._isMounted && this.setState({ visible: true, currentMenu: INITIAL_MENU, imageURL: null, })}
                     />
                 </MenuManageContainer>
                 {this.renderPopup()}
                 <CategoryDetail 
                     visible={this.state.currentCategory !== null} 
                     data={this.state.currentCategory}
-                    onChangeText={(text) => this.setState({ currentCategory: {
+                    onChangeText={(text) => this._isMounted && this.setState({ currentCategory: {
                         ...this.state.currentCategory, name: text,
                     } })}
-                    onCancel={() => this.setState({ currentCategory: null })}
+                    onCancel={() => this._isMounted && this.setState({ currentCategory: null })}
                     onDelete={() => this.onDeleteCategory(this.state.currentCategory)}
                     onSave={() => this.onCreateUpdateCategory(this.state.currentCategory)}
                 />

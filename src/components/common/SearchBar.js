@@ -63,16 +63,25 @@ const MONTH = [
 class SearchBarComponent extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             years: this.getYearOverall(),
             months: this.getMonthOverall(),
         };
     }
 
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
     componentDidUpdate(prevProps) {
-        if (prevProps.year !== this.props.year) {
+        if (prevProps.year !== this.props.year && this._isMounted) {
             this.setState({ months: this.getMonthOverall() });
         }
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     getYearOverall(arr = []) {

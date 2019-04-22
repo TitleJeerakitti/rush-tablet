@@ -15,6 +15,7 @@ import { SERVER, GET_QUEUE, AUTH_HEADER } from '../config';
 class QueueManagement extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             onlineOrder: [],
             walkinOrder: [],
@@ -23,12 +24,15 @@ class QueueManagement extends React.Component {
     }
 
     async componentDidMount() {
+        this._isMounted = true;
         const { offline_queue, online_queue } = await this.fetchDataAPI(GET_QUEUE);
-        await this.setState({
-            onlineOrder: online_queue,
-            walkinOrder: offline_queue,
-            loading: false,
-        });
+        if (this._isMounted) {
+            await this.setState({
+                onlineOrder: online_queue,
+                walkinOrder: offline_queue,
+                loading: false,
+            });
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -38,6 +42,10 @@ class QueueManagement extends React.Component {
             this.setState({ loading: true });
             this.componentDidMount();
         }
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     async fetchDataAPI(endpoint) {

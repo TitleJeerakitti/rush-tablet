@@ -35,7 +35,7 @@ class RankingState extends React.Component {
 
     render() {
         return (
-            <CardSection style={{ backgroundColor: 'red'}}>
+            <CardSection>
                 <Row style={styles.container}>
                     <View style={styles.subContainer}>
                         <View style={styles.shadowStyle} >

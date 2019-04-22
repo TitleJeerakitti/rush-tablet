@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { GRAY, ORANGE, DARK_RED, BLACK_PINK } from '../../../colors';
+import { GRAY, ORANGE, DARK_RED, BLACK_PINK, YELLOW } from '../../../colors';
 import { Row } from '../Row';
 
 const RevenueCard = ({ children, total, totalOrder, orderSuccess, orderFail }) => {
@@ -9,10 +9,10 @@ const RevenueCard = ({ children, total, totalOrder, orderSuccess, orderFail }) =
         <View style={styles.container}>
             {children}
             <Row style={styles.revenueContainer}>
-                <Text style={{ fontWeight: 'bold', flex: 1, fontSize: 20, }}>
+                <Text style={{ flex: 1, ...styles.textRevenue }}>
                     REVENUE
                 </Text>
-                <Text style={{ fontWeight: 'bold', fontSize: 20, }}>
+                <Text style={styles.textRevenue}>
                     {total.toFixed(2)} THB
                 </Text>
             </Row>
@@ -129,7 +129,7 @@ const styles = {
     revenueContainer: { 
         alignItems: 'center', 
         padding: 10, 
-        backgroundColor: '#F0F0F0' 
+        backgroundColor: YELLOW
     },
     orderDetail: { 
         flex: 1, 
@@ -138,6 +138,11 @@ const styles = {
     orderDetailCard: {
         marginLeft: 10, 
         justifyContent: 'center'
+    },
+    textRevenue: {
+        fontWeight: 'bold', 
+        fontSize: 20, 
+        color: '#FFF'
     }
 };
 

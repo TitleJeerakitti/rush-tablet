@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, UIManager, LayoutAnimation, Platform, Text, FlatList, Image, } from 'react-native';
+import { View, UIManager, LayoutAnimation, Platform, Text, FlatList, } from 'react-native';
 import { connect } from 'react-redux';
 import { Icon } from 'react-native-elements';
-import { LineChart } from 'react-native-chart-kit';
+import PureChart from 'react-native-pure-chart';
 import moment from 'moment';
 import { SearchBar, Row, CardSection, RankingState, Center, MenuRankingCard, Space, OrderItem, RevenueCard } from './common';
 import { SERVER, GET_REPORT, AUTH_HEADER, GET_ORDER_DETAIL } from '../config';
-import { GRAY, LIGHT_GRAY, EGG, LIGHT_YELLOW, ORANGE } from '../colors';
+import { GRAY, LIGHT_GRAY, EGG, LIGHT_YELLOW, ORANGE, BLACK_PINK } from '../colors';
 import { OrderDetailPopup } from './common/Popup';
 
 const CHOICE = [
@@ -37,6 +37,7 @@ const placeholder = {
 class DataAnalyze extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             status: null,
             start_date: null,
@@ -54,6 +55,14 @@ class DataAnalyze extends React.Component {
         };
     }
 
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     async getReport() {
         try {
             const { token_type, access_token } = this.props.token;
@@ -68,7 +77,8 @@ class DataAnalyze extends React.Component {
             });
             const responseData = await response.json();
             // console.log(responseData);
-            if (response.status === 200) {
+            if (this._isMounted && response.status === 200) {
+                this.renderAnimation();
                 this.setState({
                     total: responseData.total,
                     top_menu: responseData.top_menu,
@@ -87,7 +97,7 @@ class DataAnalyze extends React.Component {
             const response = await fetch(`${SERVER}${GET_ORDER_DETAIL}?id=${id}`, {
                 headers: AUTH_HEADER(token_type, access_token),
             });
-            if (response.status === 200) {
+            if (this._isMounted && response.status === 200) {
                 const resposneData = await response.json();
                 this.setState({ 
                     orderDetail: resposneData, 
@@ -103,22 +113,36 @@ class DataAnalyze extends React.Component {
         if (this.state.status === 4) {
             return `${this.state.year}-01-01`;
         } else if (this.state.status === 3) {
-            return `${this.state.year}-${this.state.month}-01`;
+            return `${this.state.year}-${this.state.month ? '0' : ''}${this.state.month}-01`;
         }
         return moment(this.state.start_date).format('YYYY-M-D');
     }
 
     changeDate(date) {
-        this.setState({ [this.state.select]: date, select: null });
-        this.closeDateTimePicker();
+        if (this._isMounted) {
+            this.setState({ 
+                [this.state.select]: date, 
+                select: null,
+                total: undefined,
+                top_menu: [],
+                order: undefined,
+                summary: undefined,
+            });
+            this.renderAnimation();
+            this.closeDateTimePicker();
+        }
     }
 
     closeDateTimePicker() {
-        this.setState({ isDateTimePickerVisible: false, select: null, });
+        if (this._isMounted) {
+            this.setState({ isDateTimePickerVisible: false, select: null, });
+        }
     }
 
     openDateTimePicker(select) {
-        this.setState({ isDateTimePickerVisible: true, select });
+        if (this._isMounted) {
+            this.setState({ isDateTimePickerVisible: true, select });
+        }
     }
 
     renderAnimation() {
@@ -264,7 +288,7 @@ class DataAnalyze extends React.Component {
                 <Row style={{ alignItems: 'center', padding: 10, }}>
                     <Icon name='ios-calendar' type='ionicon' color={GRAY} />
                     <Text style={{ marginLeft: 10 }}>
-                        {moment(this.state.start_date).format('MMM-YYYY')}
+                    {moment(this.selectStartDate()).format('MMM-YYYY')}
                     </Text>
                 </Row>
             );
@@ -273,26 +297,27 @@ class DataAnalyze extends React.Component {
             <Row style={{ alignItems: 'center', padding: 10, }}>
                 <Icon name='ios-calendar' type='ionicon' color={GRAY} />
                 <Text style={{ marginLeft: 10 }}>
-                    {moment(this.state.start_date).format('YYYY')}
+                    {moment(this.selectStartDate()).format('YYYY')}
                 </Text>
             </Row>
         );
     }
 
-    createLabelList() {
-        const result = this.state.total.reduce((arr, item) => {
-            arr.push(item.timestamp);
-            return arr;
-        }, []);
-        return result;
-    }
-
     createDataSets() {
         const result = this.state.total.reduce((arr, item) => {
-            arr.push(item.total);
+            arr.push({
+                x: item.timestamp,
+                y: item.total,
+            });
             return arr;
         }, []);
-        return result;
+        return [
+            {
+            //   seriesName: 'series1',
+              data: result,
+              color: ORANGE
+            }
+        ];
     }
 
     renderGraph() {
@@ -303,33 +328,13 @@ class DataAnalyze extends React.Component {
                         <CardSection>
                             <Text style={{ fontWeight: 'bold' }}>CHART</Text>
                         </CardSection>
-                        <LineChart
-                            data={{
-                                labels: this.createLabelList(),
-                                datasets: [{
-                                    data: this.createDataSets()
-                                }]
-                            }}
-                            width={500} // from react-native
-                            height={220}
-                            // yAxisLabel={'THB'}
-                            chartConfig={{
-                                backgroundColor: '#e26a00',
-                                backgroundGradientFrom: '#fb8c00',
-                                backgroundGradientTo: '#ffa726',
-                                decimalPlaces: 2, // optional, defaults to 2dp
-                                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                // style: {
-                                //     borderRadius: 10,
-                                //     padding: 20,
-                                // }
-                            }}
-                            bezier
-                            style={{
-                                borderRadius: 10,
-                                marginTop: 10,
-                            }}
-                        />
+                        <View style={{ marginHorizontal: 10, marginTop: 5, padding: 10, }}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 10, marginBottom: 5, }}>TOTAL REVENUE (THB)</Text>
+                            <PureChart 
+                                data={this.createDataSets()} 
+                                type='bar'
+                            />
+                        </View>
                     </View>
                 );
             }
@@ -347,7 +352,6 @@ class DataAnalyze extends React.Component {
     }
 
     render() {
-        console.log('render')
         return (
             <View style={{ flex: 1, }}>
                 <SearchBar 
@@ -359,10 +363,20 @@ class DataAnalyze extends React.Component {
                     isDateTimePickerVisible={this.state.isDateTimePickerVisible} 
                     select={this.state.select} 
                     onValueChange={value => {
-                        this.renderAnimation();
-                        this.setState({
-                            status: value,
-                        });
+                        if (this._isMounted) {
+                            this.renderAnimation();
+                            this.setState({
+                                status: value,
+                                start_date: null,
+                                end_date: null,
+                                year: null,
+                                month: null,
+                                total: undefined,
+                                top_menu: [],
+                                order: undefined,
+                                summary: undefined,
+                            });
+                        }
                     }} 
                     onPressStartDate={() => this.openDateTimePicker('start_date')}
                     onPressEndDate={() => this.openDateTimePicker('end_date')}
@@ -370,9 +384,31 @@ class DataAnalyze extends React.Component {
                     onCancel={() => this.closeDateTimePicker()}
                     onSearch={() => this.getReport()}
 
-                    onYearChange={(value) => this.setState({ year: value })}
+                    onYearChange={(value) => {
+                        if (this._isMounted) {
+                            this.renderAnimation();
+                            this.setState({ 
+                                year: value,
+                                total: undefined,
+                                top_menu: [],
+                                order: undefined,
+                                summary: undefined,
+                            });
+                        }
+                    }}
                     year={this.state.year}
-                    onMonthChange={(value) => this.setState({ month: value })}
+                    onMonthChange={(value) => {
+                        if (this._isMounted) {
+                            this.renderAnimation();
+                            this.setState({ 
+                                month: value,
+                                total: undefined,
+                                top_menu: [],
+                                order: undefined,
+                                summary: undefined,
+                            });
+                        }
+                    }}
                     month={this.state.month}
                 />
                 <Row style={{ flex: 1, }}>

@@ -4996,11 +4996,6 @@ path-type@^2.0.0:
   dependencies:
     pify "^2.0.0"
 
-paths-js@^0.4.7:
-  version "0.4.7"
-  resolved "https://registry.yarnpkg.com/paths-js/-/paths-js-0.4.7.tgz#2e1d4e4a5a8e57e15c16bd29051d3f8be237e194"
-  integrity sha512-a6pYqToBgB/V7YUHHviYdRq41IcijUjY9XJ1NKu2COrR5eLhrx+HPZ/VL6vC3vyg3z4T6K00wsVMAqTzSR3ppg==
-
 pegjs@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
@@ -5096,11 +5091,6 @@ pluralize@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-1.2.1.tgz#d1a21483fd22bb41e58a12fa3421823140897c45"
   integrity sha1-0aIUg/0iu0HlihL6NCGCMUCJfEU=
-
-point-in-polygon@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/point-in-polygon/-/point-in-polygon-1.0.1.tgz#d59b64e8fee41c49458aac82b56718c5957b2af7"
-  integrity sha1-1Ztk6P7kHElFiqyCtWcYxZV7Kvc=
 
 posix-character-classes@^0.1.0:
   version "0.1.1"
@@ -5268,15 +5258,6 @@ react-native-calendars@^1.22.0:
     prop-types "^15.5.10"
     xdate "^0.8.0"
 
-react-native-chart-kit@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/react-native-chart-kit/-/react-native-chart-kit-2.5.0.tgz#c8d6fcbfbfa8432c5a9d0924a22f11d2870804a7"
-  integrity sha512-/UMgGb53zyC6UDGllQVfKvdrfsfb21naP4tPZSXNlxQm3TMyust02A7dh/OX1gCN+Mi/KP5dkkqnbuGRmRNIdA==
-  dependencies:
-    lodash "^4.17.11"
-    paths-js "^0.4.7"
-    point-in-polygon "^1.0.1"
-
 react-native-dismiss-keyboard@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-dismiss-keyboard/-/react-native-dismiss-keyboard-1.0.0.tgz#32886242b3f2317e121f3aeb9b0a585e2b879b49"
@@ -5344,6 +5325,14 @@ react-native-picker-select@^6.1.0:
   integrity sha512-JYD0nMr9lXwcW/xxxf09TF8SN5ZqDlfIyr96Q4248ElvPpxVrSNlNNcZMo4OPnfogu1zBBVbrZzURh0oG+BV6g==
   dependencies:
     lodash.isequal "^4.5.0"
+
+react-native-pure-chart@^0.0.24:
+  version "0.0.24"
+  resolved "https://registry.yarnpkg.com/react-native-pure-chart/-/react-native-pure-chart-0.0.24.tgz#6a06d803d6bce0d6cdb94ee426e32cfce95f19a1"
+  integrity sha512-YczRMLyR1PY5u5qpYc4ScrYdbPVAD9GxIdnR8m7zbttwytlHVjn90+buYBnHW3Lm/JXHVzCMjTQkXQ5cskvB+Q==
+  dependencies:
+    lodash "^4.17.4"
+    prop-types "^15.6.0"
 
 react-native-ratings@^6.3.0:
   version "6.3.0"
