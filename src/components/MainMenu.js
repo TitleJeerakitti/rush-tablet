@@ -51,7 +51,7 @@ class MainMenu extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.restaurant_menu !== this.props.restaurant_menu) {
+        if (this._isMounted && prevProps.restaurant_menu !== this.props.restaurant_menu) {
             this.setState({ data: this.props.restaurant_menu, currentCategory: 0, cart: [] });
         }
     }
@@ -73,7 +73,7 @@ class MainMenu extends React.Component {
                     discount: 0,
                 })
             });
-            if (response.status === 200) {
+            if (this._isMounted && response.status === 200) {
                 this.renderAnimation();
                 this.setState({ isPaid: true, });
             }
@@ -83,32 +83,34 @@ class MainMenu extends React.Component {
     }
 
     addMenu(data) {
-        if (this.state.cart.length > 0) {
-            let status = true;
-            const cart = this.state.cart.reduce((arr, item, index, all) => {
-                if (item.id === data.id) {
-                    arr.push({
-                        ...item,
-                        quantity: item.quantity + 1,
-                    });
-                    status = false;
-                } else if (index === all.length - 1 && status) {
-                    arr.push(item);
-                    arr.push({ ...data, quantity: 1 });
-                } else {
-                    arr.push(item);
-                }
-                return arr;
-            }, []);
-            this.setState({ 
-                cart, 
-                subTotal: this.state.subTotal + data.price, 
-            });
-        } else {
-            this.setState({ 
-                cart: [{ ...data, quantity: 1 }],
-                subTotal: this.state.subTotal + data.price,
-            });
+        if (this._isMounted) {
+            if (this.state.cart.length > 0) {
+                let status = true;
+                const cart = this.state.cart.reduce((arr, item, index, all) => {
+                    if (item.id === data.id) {
+                        arr.push({
+                            ...item,
+                            quantity: item.quantity + 1,
+                        });
+                        status = false;
+                    } else if (index === all.length - 1 && status) {
+                        arr.push(item);
+                        arr.push({ ...data, quantity: 1 });
+                    } else {
+                        arr.push(item);
+                    }
+                    return arr;
+                }, []);
+                this.setState({ 
+                    cart, 
+                    subTotal: this.state.subTotal + data.price, 
+                });
+            } else {
+                this.setState({ 
+                    cart: [{ ...data, quantity: 1 }],
+                    subTotal: this.state.subTotal + data.price,
+                });
+            }
         }
     }
 
@@ -127,10 +129,12 @@ class MainMenu extends React.Component {
             }
             return arr;
         }, []);
-        this.setState({ 
-            cart, 
-            subTotal: this.state.subTotal - data.price 
-        });
+        if (this._isMounted) {
+            this.setState({ 
+                cart, 
+                subTotal: this.state.subTotal - data.price 
+            });
+        }
     }
 
     removeMenu(data) {
@@ -143,11 +147,13 @@ class MainMenu extends React.Component {
             }
             return arr;
         }, []);
-        this.renderAnimation();
-        this.setState({ 
-            cart, 
-            subTotal: this.state.subTotal - price,
-        });
+        if (this._isMounted) {
+            this.renderAnimation();
+            this.setState({ 
+                cart, 
+                subTotal: this.state.subTotal - price,
+            });
+        }
     }
 
     manageFormData() {
@@ -257,8 +263,10 @@ class MainMenu extends React.Component {
                     text={mainCategory.name} 
                     selected={this.state.currentCategory === index} 
                     onPress={() => {
-                        this.renderAnimation();
-                        this.setState({ currentCategory: index });
+                        if (this._isMounted) {
+                            this.renderAnimation();
+                            this.setState({ currentCategory: index });
+                        }
                     }}
                 />
             );
@@ -310,11 +318,13 @@ class MainMenu extends React.Component {
                         vat={(this.state.subTotal * 0.07).toFixed(2)}
                         total={this.state.subTotal.toFixed(2)}
                         onClear={() => {
-                            this.renderAnimation();
-                            this.setState({ cart: [], subTotal: 0 });
+                            if (this._isMounted) {
+                                this.renderAnimation();
+                                this.setState({ cart: [], subTotal: 0 });
+                            }
                         }}
                         onSubmit={() => {
-                            if (this.state.subTotal > 0) {
+                            if (this.state.subTotal > 0 && this._isMounted) {
                                 this.setState({ visible: true });
                             }
                         }}
@@ -323,8 +333,11 @@ class MainMenu extends React.Component {
                 <Change 
                     visible={this.state.visible} 
                     onPay={() => this.createOrderAPI()}
-                    onCancel={() => this.setState({ visible: false, isPaid: false, })}
-                    onClose={() => this.setState({ 
+                    onCancel={() => this._isMounted && this.setState({ 
+                        visible: false, 
+                        isPaid: false, 
+                    })}
+                    onClose={() => this._isMounted && this.setState({ 
                         visible: false, 
                         isPaid: false, 
                         cart: [], 

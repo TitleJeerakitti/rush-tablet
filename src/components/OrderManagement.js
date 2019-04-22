@@ -33,6 +33,7 @@ const config = {
 class OrderManagement extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             refresh: false,
             canLoad: true,
@@ -49,6 +50,7 @@ class OrderManagement extends React.Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         this.getOrderAPI();
     }
 
@@ -69,13 +71,15 @@ class OrderManagement extends React.Component {
                 headers: AUTH_HEADER(token_type, access_token),
             });
             const resposneData = await response.json();
-            await this.setState({ 
-                data: resposneData, 
-                isShowDetail: false, 
-                orderDetail: {}, 
-                canLoad: true, 
-                refresh: false,
-            });
+            if (this._isMounted) {
+                await this.setState({ 
+                    data: resposneData, 
+                    isShowDetail: false, 
+                    orderDetail: {}, 
+                    canLoad: true, 
+                    refresh: false,
+                });
+            }
         } catch (error) {
             console.log(error);
         }
@@ -87,7 +91,7 @@ class OrderManagement extends React.Component {
             const response = await fetch(`${SERVER}${GET_ORDER_DETAIL}?id=${id}`, {
                 headers: AUTH_HEADER(token_type, access_token),
             });
-            if (response.status === 200) {
+            if (this._isMounted && response.status === 200) {
                 // this.getOrderAPI();
                 const resposneData = await response.json();
                 this.setState({ orderDetail: resposneData, isShowDetail: true });
@@ -108,7 +112,7 @@ class OrderManagement extends React.Component {
                     status,
                 })
             });
-            if (response.status === 200) {
+            if (this._isMounted && response.status === 200) {
                 this.setState({ isPaid: true, });
                 if (!this.state.isPay) {
                     this.getOrderAPI();
@@ -125,13 +129,13 @@ class OrderManagement extends React.Component {
             this.updateAPI(order, status + 1);
         } else if (category === 'A' && status === 3) {
             this.updateAPI(order, 5);
-        } else if (category === 'R' && status === 3) {
+        } else if (this._isMounted && category === 'R' && status === 3) {
             this.setState({ isPay: true, isPaid: false, isShowDetail: false, orderDetail: order });
         }
     }
 
     changeType(url) {
-        if (this.state.currentType !== url) {
+        if (this._isMounted && this.state.currentType !== url) {
             this.getOrderAPI(url);
             this.setState({ currentType: url });
         }
@@ -144,10 +148,12 @@ class OrderManagement extends React.Component {
     }
 
     canRight(date) {
-        this.setState({ 
-            canRight: date.year < new Date().getFullYear() || 
-                (date.month < new Date().getMonth() + 1 && date.year <= new Date().getFullYear()),
-        });
+        if (this._isMounted) {
+            this.setState({ 
+                canRight: date.year < new Date().getFullYear() || 
+                    (date.month < new Date().getMonth() + 1 && date.year <= new Date().getFullYear()),
+            });
+        }
     }
     
     renderAnimation() {
@@ -178,7 +184,7 @@ class OrderManagement extends React.Component {
             return (
                 <View>
                     <Calendar 
-                        onDayPress={(day) => this.setState({ 
+                        onDayPress={(day) => this._isMounted && this.setState({ 
                             endDate: day.dateString, 
                             visible: false, 
                         })}
@@ -226,8 +232,10 @@ class OrderManagement extends React.Component {
                         <RefreshControl
                             refreshing={this.state.refresh}
                             onRefresh={() => {
-                                this.setState({ refresh: true, });
-                                this.getOrderAPI();
+                                if (this._isMounted) {
+                                    this.setState({ refresh: true, });
+                                    this.getOrderAPI();
+                                }
                             }}
                         />
                     }
@@ -260,15 +268,17 @@ class OrderManagement extends React.Component {
                 <Change
                     visible={this.state.isPay} 
                     onPay={() => this.updateAPI(this.state.orderDetail, 5)}
-                    onCancel={() => this.setState({ isPay: false, isPaid: false, })}
+                    onCancel={() => this._isMounted && this.setState({ isPay: false, isPaid: false, })}
                     onClose={() => {
-                        this.renderAnimation();
-                        this.setState({ 
-                            isPay: false, 
-                            isPaid: false, 
-                            orderDetail: {},
-                        });
-                        this.getOrderAPI();
+                        if (this._isMounted) {
+                            this.renderAnimation();
+                            this.setState({ 
+                                isPay: false, 
+                                isPaid: false, 
+                                orderDetail: {},
+                            });
+                            this.getOrderAPI();
+                        }
                     }}
                     total={this.state.orderDetail.total || 0}
                     isPaid={this.state.isPaid}
@@ -276,7 +286,7 @@ class OrderManagement extends React.Component {
                 <OrderDetailPopup 
                     visible={this.state.isShowDetail}
                     data={this.state.orderDetail}
-                    onClose={() => this.setState({ isShowDetail: false, })}
+                    onClose={() => this._isMounted && this.setState({ isShowDetail: false, })}
                     onCancel={() => {
                         this.renderAnimation();
                         this.updateAPI(this.state.orderDetail, 4);

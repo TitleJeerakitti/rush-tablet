@@ -11,27 +11,6 @@ import { Space } from '../Space';
 import { CheckBox } from '../CheckBox';
 
 class RestaurantPopup extends React.Component {
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //         isEmpty: this.props.menu.is_out_of_stock,
-    //         name: this.props.menu.name,
-    //         price: this.props.menu.price.toFixed(2),
-    //         picture: this.props.menu.picture || 'https://i.imgur.com/aVnb6Qv.png',
-    //     };
-    // }
-
-    // componentDidUpdate(prevProps, prevState) {
-    //     if (prevState.name !== this.props.menu.name) {
-    //         this.setState({
-    //             isEmpty: this.props.menu.is_out_of_stock,
-    //             name: this.props.menu.name,
-    //             price: this.props.menu.price.toFixed(2),
-    //             picture: this.props.menu.picture || 'https://i.imgur.com/aVnb6Qv.png',
-    //         });
-    //     }
-    // }
-
     render() {
         const { 
             container, 

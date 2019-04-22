@@ -194,8 +194,10 @@ class LoginForm extends React.Component {
                             style={inputStyle}
                             value={this.state.username}
                             onChangeText={(text) => {
-                                this.renderAnimation();
-                                this.setState({ username: text, error: '' });
+                                if (this._isMounted) {
+                                    this.renderAnimation();
+                                    this.setState({ username: text, error: '' });
+                                }
                             }}
                         />
                         <Input 
@@ -204,8 +206,10 @@ class LoginForm extends React.Component {
                             value={this.state.password}
                             secure
                             onChangeText={(text) => {
-                                this.renderAnimation();
-                                this.setState({ password: text, error: '' });
+                                if (this._isMounted) {
+                                    this.renderAnimation();
+                                    this.setState({ password: text, error: '' });
+                                }
                             }}
                         />
                         <Text style={{ color: DARK_RED, paddingVertical: 5, }}>

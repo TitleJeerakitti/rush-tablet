@@ -8,29 +8,40 @@ import { GRAY, ORANGE, LIGHT_GRAY } from '../../../colors';
 class Change extends React.Component {
     constructor(props) {
         super(props);
+        this._isMounted = false;
         this.state = {
             pay: '0',
         };
     }
 
+    componentDidMount() {
+        this._isMounted = true;
+    }
+
     componentDidUpdate(prevProps) {
-        if (prevProps.total !== this.props.total || prevProps.visible !== this.props.visible) {
+        if ((prevProps.total !== this.props.total || prevProps.visible !== this.props.visible) && this._isMounted) {
             this.setState({ pay: '0', });
         }
     }
 
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
+
     onAddNumber(text) {
         const pointIndex = this.state.pay.indexOf('.');
-        if (pointIndex === -1 && this.state.pay.length < 7) {
-            this.setState({ pay: this.state.pay === '0' ? text : this.state.pay + text });
-        } else if (this.state.pay.length <= pointIndex + 2 && this.state.pay.length < 10) {
-            this.setState({ pay: this.state.pay + text });
+        if (this._isMounted) {
+            if (pointIndex === -1 && this.state.pay.length < 7) {
+                this.setState({ pay: this.state.pay === '0' ? text : this.state.pay + text });
+            } else if (this.state.pay.length <= pointIndex + 2 && this.state.pay.length < 10) {
+                this.setState({ pay: this.state.pay + text });
+            }
         }
     }
 
     onAddPoint() {
         const response = this.state.pay.includes('.');
-        if (!response) {
+        if (this._isMounted && !response) {
             this.setState({ pay: `${this.state.pay}.` });
         }
     }
@@ -38,20 +49,22 @@ class Change extends React.Component {
     onRemoveLast() {
         const last = this.state.pay.length - 1;
         const pointIndex = this.state.pay.indexOf('.');
-        if (last === 0 && this.state.pay !== '0') {
-            this.setState({ pay: '0' });
-        } else if (pointIndex === last - 1 && this.state.pay !== '0') {
-            this.setState({ pay: this.state.pay.slice(0, last - 1) });
-        } else if (last > 1) {
-            this.setState({ pay: this.state.pay.slice(0, last) });
-        } else if (last === 1) {
-            const result = this.state.pay.slice(0, 1);
-            this.setState({ pay: result });
+        if (this._isMounted) {
+            if (last === 0 && this.state.pay !== '0') {
+                this.setState({ pay: '0' });
+            } else if (pointIndex === last - 1 && this.state.pay !== '0') {
+                this.setState({ pay: this.state.pay.slice(0, last - 1) });
+            } else if (last > 1) {
+                this.setState({ pay: this.state.pay.slice(0, last) });
+            } else if (last === 1) {
+                const result = this.state.pay.slice(0, 1);
+                this.setState({ pay: result });
+            }
         }
     }
 
     onClear() {
-        if (this.state.pay !== '0') {
+        if (this.state.pay !== '0' && this._isMounted) {
             this.setState({ pay: '0' });
         }
     }

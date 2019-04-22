@@ -9,6 +9,7 @@ import SideMenu from './components/SideMenu';
 import OrderManagement from './components/OrderManagement';
 import QueueManagement from './components/QueueManagement';
 import MenuManagement from './components/MenuManagement';
+import DataAnalyze from './components/DataAnalyze';
 
 class RouterComponent extends React.Component {
     render() {
@@ -26,7 +27,7 @@ class RouterComponent extends React.Component {
                                     <Scene 
                                         key='mainHome' 
                                         component={MainMenu} 
-                                        title='Restaurant' 
+                                        title='Home' 
                                         navBar={NavHamberger}
                                         initial
                                     />
@@ -56,7 +57,7 @@ class RouterComponent extends React.Component {
                                     <Scene 
                                         key='mainMenu' 
                                         component={MenuManagement} 
-                                        title='Restaurant' 
+                                        title='Menu Management' 
                                         navBar={NavHamberger}
                                         initial
                                     />
@@ -64,8 +65,8 @@ class RouterComponent extends React.Component {
                                 <Scene key='analyse' icon={IconTab} iconName='chart-bar'>
                                     <Scene 
                                         key='mainAnalyse' 
-                                        component={MainMenu} 
-                                        title='Restaurant' 
+                                        component={DataAnalyze} 
+                                        title='Analyze Data' 
                                         navBar={NavHamberger}
                                         initial
                                     />
