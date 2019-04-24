@@ -27,6 +27,12 @@ const config = {
             iconName: 'calendar-clock',
             iconType: 'material-community',
         },
+        {
+            status: 'Cancel Order',
+            url: 'cancel_order',
+            iconName: 'warning',
+            iconType: 'material',
+        },
     ]
 };
 
@@ -172,8 +178,8 @@ class OrderManagement extends React.Component {
                 text={value.status}
                 selected={this.state.currentType === value.url}
                 onPress={() => {
-                    this.changeType(value.url);
                     this.renderAnimation();
+                    this.changeType(value.url);
                 }}
             />
         );
@@ -245,6 +251,35 @@ class OrderManagement extends React.Component {
         return <EmptyView emptyText='EMPTY ORDER LIST' />;
     }
 
+    renderPopup() {
+        if (this.state.orderDetail !== undefined) {
+            if (this.state.orderDetail.status !== 4) {
+                return (
+                    <OrderDetailPopup 
+                        visible={this.state.isShowDetail}
+                        data={this.state.orderDetail}
+                        onClose={() => this._isMounted && this.setState({ isShowDetail: false, })}
+                        onCancel={() => {
+                            this.renderAnimation();
+                            this.updateAPI(this.state.orderDetail, 4);
+                        }}
+                        onConfirm={() => {
+                            this.renderAnimation();
+                            this.statusUpdate(this.state.orderDetail);
+                        }}
+                    />
+                );
+            }
+            return (
+                <OrderDetailPopup 
+                    visible={this.state.isShowDetail}
+                    data={this.state.orderDetail}
+                    onClose={() => this._isMounted && this.setState({ isShowDetail: false, })}
+                />
+            );
+        }
+    }
+
     render() {
         const { dateContainer, dateTextStyle, leftContainer, } = styles;
         return (
@@ -283,19 +318,7 @@ class OrderManagement extends React.Component {
                     total={this.state.orderDetail.total || 0}
                     isPaid={this.state.isPaid}
                 />
-                <OrderDetailPopup 
-                    visible={this.state.isShowDetail}
-                    data={this.state.orderDetail}
-                    onClose={() => this._isMounted && this.setState({ isShowDetail: false, })}
-                    onCancel={() => {
-                        this.renderAnimation();
-                        this.updateAPI(this.state.orderDetail, 4);
-                    }}
-                    onConfirm={() => {
-                        this.renderAnimation();
-                        this.statusUpdate(this.state.orderDetail);
-                    }}
-                />
+                {this.renderPopup()}
             </Row>
         );
     }

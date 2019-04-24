@@ -10,7 +10,7 @@ import {
     EmptyView 
 } from './common';
 import { ORANGE, YELLOW, BLACK_PINK, PINK, } from '../colors';
-import { SERVER, GET_QUEUE, AUTH_HEADER } from '../config';
+import { SERVER, GET_QUEUE, AUTH_HEADER, CALL_QUEUE } from '../config';
 
 class QueueManagement extends React.Component {
     constructor(props) {
@@ -62,6 +62,22 @@ class QueueManagement extends React.Component {
         }
     }
 
+    async callQueueAPI(queue_number) {
+        try {
+            const { token_type, access_token } = this.props.token;
+            const response = await fetch(`${SERVER}${CALL_QUEUE}`, {
+                method: 'POST',
+                headers: AUTH_HEADER(token_type, access_token),
+                body: JSON.stringify({
+                    queue_number,
+                })
+            });
+            console.log(response.status);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     renderQueueList(items, headerColor, buttonColor) {
         return items.map(item =>
             <QueueList 
@@ -88,7 +104,7 @@ class QueueManagement extends React.Component {
                         queue={onlineOrder.length > 0 ? onlineOrder[0].queue_number : 'NO QUEUE'}
                         colors={[ORANGE, YELLOW]}
                         buttonColor={YELLOW}
-                        onAgain={() => console.log('Again')}
+                        onAgain={() => this.callQueueAPI(onlineOrder[0].queue_number)}
                         onNext={() => console.log('Next')}
                     />
                     <ContainerBorderRadiusTop>

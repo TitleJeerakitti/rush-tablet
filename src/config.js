@@ -1,4 +1,5 @@
 export const SERVER = 'http://161.246.6.1:8010';
+// export const SERVER = 'http://10.66.4.133:8000';
 export const CLIENT_SECRET = '20gLSwtsfYqqsamMYLj7GGYxziYRaoQXzCcdIARLY1XkQ7tzpv0pJQXxqzMIi5f3kIxgMkLeJKfoEBmOUda8Dj7RmysnwU4yUOL4CZgqVI9gtkwfqS1cqEs2evvgpmla';
 export const CLIENT_ID = '55lYZd3VS5vcHGFvm2KpUKB0tdiBET8gLAXC8TSX';
 
@@ -16,6 +17,8 @@ export const MAIN_CATEGORY_MODIFY = '/api/restaurant/create-edit-main-category/'
 export const SUB_CATEGORY_MODIFY = '/api/restaurant/create-edit-sub-category/';
 export const GET_QUEUE = '/api/restaurant/get-queue/'; 
 export const GET_REPORT = '/api/restaurant/get-report/';
+export const UPLOAD_EXPO_TOKEN = '/api/upload_expo_token';
+export const CALL_QUEUE = '/api/restaurant/call-queue-again/';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';
 export const WALKIN_QUEUE = 'walkin_queue';

@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, ScrollView, Text, FlatList, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, ScrollView, Text, FlatList, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import { connect } from 'react-redux';
+import { Actions } from 'react-native-router-flux';
+import { Permissions, Notifications } from 'expo';
 import { 
     Row, 
     OrderDetail, 
@@ -13,7 +15,7 @@ import {
     Change,
 } from './common';
 import { EGG, GRAY, } from '../colors';
-import { SERVER, GET_MAIN_MENU, CREATE_OFFLINE_ORDER, AUTH_HEADER } from '../config';
+import { SERVER, GET_MAIN_MENU, CREATE_OFFLINE_ORDER, AUTH_HEADER, UPLOAD_EXPO_TOKEN } from '../config';
 import { restaurantCollect } from '../actions';
 
 class MainMenu extends React.Component {
@@ -44,6 +46,8 @@ class MainMenu extends React.Component {
                 const responseData = await response.json();
                 this.setState({ data: responseData });
                 this.props.restaurantCollect(responseData);
+                this.getPermissions();
+                this.listener = Notifications.addListener(this.listener);
             }
         } catch (error) {
             console.log(error);
@@ -57,7 +61,53 @@ class MainMenu extends React.Component {
     }
     
     componentWillUnmount() {
+        if (this.listener && this._isMounted) {
+            Notifications.removeListener(this.listener);
+        }
         this._isMounted = false;
+    }
+
+    async getPermissions() {
+        const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+        console.log(status);
+        if (status !== 'granted') {
+            Alert.alert('Please turn on your notification at setting.');
+        }
+        if (status === 'granted') {
+            const token = await Notifications.getExpoPushTokenAsync();
+            console.log(token);
+            this.sentNoticeToken(token);
+        }
+    }
+
+    async sentNoticeToken(token) {
+        try {
+            const { access_token, token_type, } = this.props.token;
+            await fetch(`${SERVER}${UPLOAD_EXPO_TOKEN}`, {
+                method: 'POST',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Content-Type': 'application/json',
+                    Authorization: `${token_type} ${access_token}`,
+                },
+                body: JSON.stringify({
+                    expo_token: token,
+                })
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    
+    listener = ({ origin, data }) => {
+        console.log('receive ', origin, data);
+        // handle notification here!
+        if (origin === 'selected') {
+            if (data.status === 200 || data.status === 201) {
+                Actions.order();
+                Actions.refresh();
+            }
+        }
     }
 
     async createOrderAPI() {

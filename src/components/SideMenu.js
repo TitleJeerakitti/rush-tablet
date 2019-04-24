@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Dimensions, Image, TouchableOpacity, AsyncStorage } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
-import { Constants, LinearGradient, } from 'expo';
+import { Constants, LinearGradient, Permissions, Notifications } from 'expo';
 import { SideMenuItem, } from './common';
 import { DARK_ORANGE, YELLOW, } from '../colors';
 import { SERVER, LOG_OUT, AUTH_HEADER, CLIENT_ID, CLIENT_SECRET } from '../config';
@@ -22,10 +22,18 @@ class SideMenu extends React.Component {
     constructor(props) {
         super(props);
         this._isMounted = false;
+        this.state = {
+            expoToken: undefined,
+        };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         this._isMounted = true;
+        const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+        if (status === 'granted') {
+            const token = await Notifications.getExpoPushTokenAsync();
+            this.setState({ expoToken: token });
+        }
     }
 
     componentWillUnmount() {
@@ -43,6 +51,7 @@ class SideMenu extends React.Component {
                     client_id: CLIENT_ID,
                     client_secret: CLIENT_SECRET,
                     token: access_token,
+                    expo_token: this.state.expoToken,
                 })
             });
             // const responseData = await response.json();
