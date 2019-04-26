@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, RefreshControl } from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, RefreshControl, Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { connect } from 'react-redux';
 import { Row, SeleteItem, OrderItem, EmptyView, Change, } from './common';
 import { ORANGE, DARK_ORANGE, DARK_RED, } from '../colors';
 import { GET_ORDER, SERVER, AUTH_HEADER, UPDATE_ORDER_STATUS, GET_ORDER_DETAIL } from '../config';
-import { OrderDetailPopup } from './common/Popup';
+import { OrderDetailPopup, ConfirmCancel } from './common/Popup';
 
 const config = {
     data: [
@@ -161,6 +161,19 @@ class OrderManagement extends React.Component {
             });
         }
     }
+
+    secondMessage(orderDetail) {
+        const { category, status } = orderDetail;
+        if (status === 1) {
+            return 'to accept this order';
+        } else if (status === 2) {
+            return 'to call queue of this order';
+        } else if (status === 3 && category === 'R') {
+            return 'to pay this order';
+        } else if (status === 3 && category === 'A') {
+            return 'to grab this order';
+        }
+    }
     
     renderAnimation() {
         LayoutAnimation.easeInEaseOut();
@@ -230,7 +243,15 @@ class OrderManagement extends React.Component {
                             onMore={() => this.getOrderDetailAPI(parseInt(item.id, 10))}
                             onExtraButton={() => {
                                 this.renderAnimation();
-                                this.statusUpdate(item);
+                                Alert.alert(
+                                    'Are you sure?',
+                                    this.secondMessage(item),
+                                    [
+                                      { text: 'Cancel', style: 'cancel', },
+                                      { text: 'OK', onPress: () => this.statusUpdate(item) },
+                                    ],
+                                    { cancelable: false },
+                                );
                             }}
                         />
                     }
@@ -261,11 +282,27 @@ class OrderManagement extends React.Component {
                         onClose={() => this._isMounted && this.setState({ isShowDetail: false, })}
                         onCancel={() => {
                             this.renderAnimation();
-                            this.updateAPI(this.state.orderDetail, 4);
+                            Alert.alert(
+                                'Are you sure?',
+                                'to cancel this order',
+                                [
+                                  { text: 'Cancel', style: 'cancel', },
+                                  { text: 'OK', onPress: () => this.updateAPI(this.state.orderDetail, 4) },
+                                ],
+                                { cancelable: false },
+                            );
                         }}
                         onConfirm={() => {
                             this.renderAnimation();
-                            this.statusUpdate(this.state.orderDetail);
+                            Alert.alert(
+                                'Are you sure?',
+                                this.secondMessage(this.state.orderDetail),
+                                [
+                                  { text: 'Cancel', style: 'cancel', },
+                                  { text: 'OK', onPress: () => this.statusUpdate(this.state.orderDetail) },
+                                ],
+                                { cancelable: false },
+                            );
                         }}
                     />
                 );

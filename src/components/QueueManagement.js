@@ -78,6 +78,12 @@ class QueueManagement extends React.Component {
         }
     }
 
+    onCallQueueAgain(onlineOrder) {
+        if (onlineOrder.length > 0) {
+            this.callQueueAPI(onlineOrder[0].queue_number);
+        }
+    }
+
     renderQueueList(items, headerColor, buttonColor) {
         return items.map(item =>
             <QueueList 
@@ -104,7 +110,7 @@ class QueueManagement extends React.Component {
                         queue={onlineOrder.length > 0 ? onlineOrder[0].queue_number : 'NO QUEUE'}
                         colors={[ORANGE, YELLOW]}
                         buttonColor={YELLOW}
-                        onAgain={() => this.callQueueAPI(onlineOrder[0].queue_number)}
+                        onAgain={() => this.onCallQueueAgain(onlineOrder)}
                         onNext={() => console.log('Next')}
                     />
                     <ContainerBorderRadiusTop>

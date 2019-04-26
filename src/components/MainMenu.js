@@ -224,8 +224,10 @@ class MainMenu extends React.Component {
             <MenuItem 
                 data={item} 
                 onPress={() => {
-                    this.renderAnimation();
-                    this.addMenu(item);
+                    if (!item.is_out_of_stock) {
+                        this.renderAnimation();
+                        this.addMenu(item);
+                    }
                 }} 
             />
         );

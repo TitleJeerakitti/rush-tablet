@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "rush-tablet",
-    "slug": "rush-tablet",
+    "name": "rush-restaurant",
+    "slug": "rush-restaurant",
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [
@@ -10,9 +10,9 @@
     ],
     "version": "1.0.0",
     "orientation": "landscape",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/rush-app-logo.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/rush-ipad.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

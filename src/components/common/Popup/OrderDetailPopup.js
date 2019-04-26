@@ -15,7 +15,7 @@ class OrderDetailPopup extends React.Component {
         if (status === 1) {
             return 'ACCEPT';
         } else if (status === 2) {
-            return 'CALL';
+            return 'FINISH';
         } else if (status === 3 && category === 'R') {
             return 'PAY';
         } else if (status === 3 && category === 'A') {

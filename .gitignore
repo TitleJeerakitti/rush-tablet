@@ -8,3 +8,4 @@ npm-debug.*
 src/images
 src/test-json-api
 \.DS_Store
+assets

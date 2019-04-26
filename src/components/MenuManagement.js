@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutAnimation, UIManager, Platform } from 'react-native';
+import { LayoutAnimation, UIManager, Platform, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import { Permissions, ImagePicker } from 'expo';
 import { Row, MenuNumItem, AddButton, MenuManageContainer } from './common';
@@ -274,8 +274,25 @@ class MenuManagement extends React.Component {
                         this.onCreateUpdate(this.state.currentMenu);
                     }}
                     onDelete={() => {
-                        this.renderAnimation();
-                        this.onDelete(this.state.currentMenu);
+                        Alert.alert(
+                            'Are you sure?',
+                            'to delete this menu',
+                            [
+                                {
+                                    text: 'Cancel',
+                                    onPress: () => console.log('Cancel Pressed'),
+                                    style: 'cancel',
+                                },
+                                { 
+                                    text: 'Confirm', 
+                                    onPress: () => {
+                                        this.renderAnimation();
+                                        this.onDelete(this.state.currentMenu);
+                                    }
+                                },
+                            ],
+                                { cancelable: false },
+                        );
                     }}
                     onChangeName={(text) => this._isMounted && this.setState({ 
                         currentMenu: { ...currentMenu, name: text, } 
@@ -333,8 +350,8 @@ class MenuManagement extends React.Component {
                     />
                 </MenuManageContainer>
                 <MenuManageContainer
-                    title='SUB CATEGORY'
-                    emptyText='EMPTY SUB CATEGORY'
+                    title='MENU'
+                    emptyText='EMPTY MENU'
                     condition={currentSub !== null}
                     colors={[ORANGE, YELLOW]}
                 >
@@ -355,7 +372,25 @@ class MenuManagement extends React.Component {
                         ...this.state.currentCategory, name: text,
                     } })}
                     onCancel={() => this._isMounted && this.setState({ currentCategory: null })}
-                    onDelete={() => this.onDeleteCategory(this.state.currentCategory)}
+                    onDelete={() => {
+                        Alert.alert(
+                            'Are you sure?',
+                            'to delete this one',
+                            [
+                                {
+                                    text: 'Cancel',
+                                    onPress: () => console.log('Cancel Pressed'),
+                                    style: 'cancel',
+                                },
+                                { 
+                                    text: 'Confirm', 
+                                    onPress: () => this.onDeleteCategory(this.state.currentCategory) 
+                                },
+                            ],
+                                { cancelable: false },
+                          );
+                    }}
+                    // this.onDeleteCategory(this.state.currentCategory)
                     onSave={() => this.onCreateUpdateCategory(this.state.currentCategory)}
                 />
             </Row>

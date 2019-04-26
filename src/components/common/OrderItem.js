@@ -20,7 +20,7 @@ class OrderItem extends React.Component {
                     description: 'COOKING',
                     source: require('../../images/stew.png'),
                     color: BLUE,
-                    extraButton: 'CALL',
+                    extraButton: 'FINISH',
                 },
                 {
                     description: 'WAITING',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableWithoutFeedback, Switch, } from 'react-native';
+import { TouchableWithoutFeedback, Switch, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { Icon } from 'react-native-elements';
@@ -49,6 +49,10 @@ class NavBar extends React.Component {
                         onValueChange={() => this.toggleShopStatus()}
                     />
                 </NavCard>
+                <View style={{ position: 'absolute', right: 70, }}>
+
+                    <Text style={{ fontWeight: 'bold', color: 'white' }}>Shop Status</Text>
+                </View>
             </NavContainer>
         );
     }

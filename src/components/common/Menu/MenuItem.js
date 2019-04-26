@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text, TouchableOpacity, View, Image, Dimensions, } from 'react-native';
 import { Row } from '../Row';
-import { YELLOW, ORANGE } from '../../../colors';
+import { YELLOW, ORANGE, GRAY } from '../../../colors';
+import OutOfStock from '../../../images/out-of-stock.png';
 
 const width = Dimensions.get('window').width * 0.6;
 const widthImage = (width - 60) / 3;
@@ -9,13 +10,24 @@ const widthImage = (width - 60) / 3;
 const MenuItem = ({ onPress, data }) => {
     return (
         <View style={styles.containerShadow}>
-            <TouchableOpacity style={styles.containerStyle} onPress={onPress}>
+            <TouchableOpacity 
+                style={styles.containerStyle} 
+                onPress={onPress} 
+                activeOpacity={0.5} 
+                disabled={data.is_out_of_stock}
+            >
                 <Row>
                     <Image 
                         source={{ uri: data.picture }}
                         resizeMode='cover'
                         style={{ width: widthImage, height: widthImage, }}
                     />
+                    { data.is_out_of_stock === true ? 
+                        <Image 
+                            source={OutOfStock}
+                            style={styles.outOfStockStyle}
+                        /> : <View />
+                    }
                     <View style={styles.textContainer}>
                         <Text 
                             numberOfLines={2} 
@@ -64,6 +76,13 @@ const styles = {
         shadowOpacity: 0.1, 
         shadowRadius: 10, 
     },
+    outOfStockStyle: {
+        width: widthImage * 0.67, 
+        height: widthImage * 0.67, 
+        position: 'absolute', 
+        top: 0, 
+        left: 0,
+    }
 };
 
 export { MenuItem };
