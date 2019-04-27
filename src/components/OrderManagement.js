@@ -1,11 +1,21 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList, Platform, UIManager, LayoutAnimation, RefreshControl, Alert } from 'react-native';
+import { 
+    View, 
+    Text, 
+    TouchableOpacity, 
+    FlatList, 
+    Platform, 
+    UIManager, 
+    LayoutAnimation, 
+    RefreshControl, 
+    Alert 
+} from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { connect } from 'react-redux';
 import { Row, SeleteItem, OrderItem, EmptyView, Change, } from './common';
 import { ORANGE, DARK_ORANGE, DARK_RED, } from '../colors';
 import { GET_ORDER, SERVER, AUTH_HEADER, UPDATE_ORDER_STATUS, GET_ORDER_DETAIL } from '../config';
-import { OrderDetailPopup, ConfirmCancel } from './common/Popup';
+import { OrderDetailPopup, } from './common/Popup';
 
 const config = {
     data: [
@@ -52,6 +62,7 @@ class OrderManagement extends React.Component {
             isShowDetail: false,
             isPay: false,
             isPaid: false,
+            loading: false,
         };
     }
 
@@ -78,6 +89,7 @@ class OrderManagement extends React.Component {
             });
             const resposneData = await response.json();
             if (this._isMounted) {
+                // this.renderAnimation();
                 await this.setState({ 
                     data: resposneData, 
                     isShowDetail: false, 
@@ -87,7 +99,7 @@ class OrderManagement extends React.Component {
                 });
             }
         } catch (error) {
-            console.log(error);
+            Alert.alert('Unstable Network!');
         }
     }
     
@@ -103,12 +115,14 @@ class OrderManagement extends React.Component {
                 this.setState({ orderDetail: resposneData, isShowDetail: true });
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 
     async updateAPI(order, status) {
         try {
+            this.renderAnimation();
+            this.setState({ loading: true });
             const { token_type, access_token, } = this.props.token;
             const response = await fetch(`${SERVER}${UPDATE_ORDER_STATUS}`, {
                 method: 'POST',
@@ -119,13 +133,15 @@ class OrderManagement extends React.Component {
                 })
             });
             if (this._isMounted && response.status === 200) {
-                this.setState({ isPaid: true, });
+                this.renderAnimation();
+                this.setState({ isPaid: true, loading: false });
                 if (!this.state.isPay) {
                     this.getOrderAPI();
                 }
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Your network is unstable!');
+            this.setState({ loading: false, });
         }
     }
 
@@ -142,6 +158,7 @@ class OrderManagement extends React.Component {
 
     changeType(url) {
         if (this._isMounted && this.state.currentType !== url) {
+            this.renderAnimation();
             this.getOrderAPI(url);
             this.setState({ currentType: url });
         }
@@ -242,7 +259,7 @@ class OrderManagement extends React.Component {
                             order={item}
                             onMore={() => this.getOrderDetailAPI(parseInt(item.id, 10))}
                             onExtraButton={() => {
-                                this.renderAnimation();
+                                // this.renderAnimation();
                                 Alert.alert(
                                     'Are you sure?',
                                     this.secondMessage(item),
@@ -281,29 +298,36 @@ class OrderManagement extends React.Component {
                         data={this.state.orderDetail}
                         onClose={() => this._isMounted && this.setState({ isShowDetail: false, })}
                         onCancel={() => {
-                            this.renderAnimation();
+                            // this.renderAnimation();
                             Alert.alert(
                                 'Are you sure?',
                                 'to cancel this order',
                                 [
-                                  { text: 'Cancel', style: 'cancel', },
-                                  { text: 'OK', onPress: () => this.updateAPI(this.state.orderDetail, 4) },
+                                    { text: 'Cancel', style: 'cancel', },
+                                    { 
+                                        text: 'OK', 
+                                        onPress: () => this.updateAPI(this.state.orderDetail, 4) 
+                                    },
                                 ],
                                 { cancelable: false },
                             );
                         }}
                         onConfirm={() => {
-                            this.renderAnimation();
+                            // this.renderAnimation();
                             Alert.alert(
                                 'Are you sure?',
                                 this.secondMessage(this.state.orderDetail),
                                 [
-                                  { text: 'Cancel', style: 'cancel', },
-                                  { text: 'OK', onPress: () => this.statusUpdate(this.state.orderDetail) },
+                                    { text: 'Cancel', style: 'cancel', },
+                                    { 
+                                        text: 'OK', 
+                                        onPress: () => this.statusUpdate(this.state.orderDetail) 
+                                    },
                                 ],
                                 { cancelable: false },
                             );
                         }}
+                        loading={this.state.loading}
                     />
                 );
             }
@@ -340,7 +364,10 @@ class OrderManagement extends React.Component {
                 <Change
                     visible={this.state.isPay} 
                     onPay={() => this.updateAPI(this.state.orderDetail, 5)}
-                    onCancel={() => this._isMounted && this.setState({ isPay: false, isPaid: false, })}
+                    onCancel={() => this._isMounted && this.setState({ 
+                        isPay: false, 
+                        isPaid: false, 
+                    })}
                     onClose={() => {
                         if (this._isMounted) {
                             this.renderAnimation();
@@ -354,6 +381,7 @@ class OrderManagement extends React.Component {
                     }}
                     total={this.state.orderDetail.total || 0}
                     isPaid={this.state.isPaid}
+                    loading={this.state.loading}
                 />
                 {this.renderPopup()}
             </Row>

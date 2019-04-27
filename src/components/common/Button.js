@@ -6,7 +6,7 @@ const Button = ({ children, onPress, containerStyle, textStyle, hideOpacity }) =
         <TouchableOpacity 
             onPress={onPress} 
             style={containerStyle} 
-            activeOpacity={hideOpacity ? 1 : 0}
+            activeOpacity={hideOpacity ? 1 : 0.5}
         >
             <Text style={textStyle}>{children}</Text>
         </TouchableOpacity>

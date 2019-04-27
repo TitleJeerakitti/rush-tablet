@@ -1,5 +1,14 @@
 import React from 'react';
-import { View, ScrollView, Text, FlatList, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
+import { 
+    View, 
+    ScrollView, 
+    Text, 
+    FlatList, 
+    LayoutAnimation, 
+    Platform, 
+    UIManager, 
+    Alert 
+} from 'react-native';
 import { connect } from 'react-redux';
 import { Actions } from 'react-native-router-flux';
 import { Permissions, Notifications } from 'expo';
@@ -15,7 +24,13 @@ import {
     Change,
 } from './common';
 import { EGG, GRAY, } from '../colors';
-import { SERVER, GET_MAIN_MENU, CREATE_OFFLINE_ORDER, AUTH_HEADER, UPLOAD_EXPO_TOKEN } from '../config';
+import { 
+    SERVER, 
+    GET_MAIN_MENU, 
+    CREATE_OFFLINE_ORDER, 
+    AUTH_HEADER, 
+    UPLOAD_EXPO_TOKEN 
+} from '../config';
 import { restaurantCollect } from '../actions';
 
 class MainMenu extends React.Component {
@@ -30,6 +45,7 @@ class MainMenu extends React.Component {
             visible: false,
             isPaid: false,
             formData: {},
+            loading: false,
         };
     }
 
@@ -50,7 +66,7 @@ class MainMenu extends React.Component {
                 this.listener = Notifications.addListener(this.listener);
             }
         } catch (error) {
-            console.log(error);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -69,13 +85,11 @@ class MainMenu extends React.Component {
 
     async getPermissions() {
         const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
-        console.log(status);
         if (status !== 'granted') {
             Alert.alert('Please turn on your notification at setting.');
         }
         if (status === 'granted') {
             const token = await Notifications.getExpoPushTokenAsync();
-            console.log(token);
             this.sentNoticeToken(token);
         }
     }
@@ -95,12 +109,11 @@ class MainMenu extends React.Component {
                 })
             });
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
     
     listener = ({ origin, data }) => {
-        console.log('receive ', origin, data);
         // handle notification here!
         if (origin === 'selected') {
             if (data.status === 200 || data.status === 201) {
@@ -112,6 +125,7 @@ class MainMenu extends React.Component {
 
     async createOrderAPI() {
         try {
+            this.setState({ loading: true });
             const { token_type, access_token } = this.props.token;
             const response = await fetch(`${SERVER}${CREATE_OFFLINE_ORDER}`, {
                 method: 'POST',
@@ -125,10 +139,10 @@ class MainMenu extends React.Component {
             });
             if (this._isMounted && response.status === 200) {
                 this.renderAnimation();
-                this.setState({ isPaid: true, });
+                this.setState({ isPaid: true, loading: false });
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -397,6 +411,7 @@ class MainMenu extends React.Component {
                     })}
                     total={this.state.subTotal}
                     isPaid={this.state.isPaid}
+                    loading={this.state.loading}
                 />
             </Row>
         );

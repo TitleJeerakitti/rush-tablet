@@ -24,3 +24,4 @@ export * from './CustomerDetail';
 export * from './SearchBar';
 export * from './CardSection';
 export * from './RankingState';
+export * from './Spinner';

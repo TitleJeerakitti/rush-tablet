@@ -8,6 +8,7 @@ import { Row } from '../Row';
 import { Space } from '../Space';
 import { CustomerDetail } from '../CustomerDetail';
 import { Button } from '../Button';
+import { Spinner } from '../Spinner';
 
 class OrderDetailPopup extends React.Component {
     selectText() {
@@ -23,15 +24,57 @@ class OrderDetailPopup extends React.Component {
         }
     }
 
-    render() {
+    renderSpinner() {
         const { 
             data,
-            visible,
             onCancel,
             onClose,
             onConfirm,
         } = this.props;
-        const { customer, menus, status, total = 0, } = data;
+        const { status, } = data;
+        if (this.props.loading) {
+            return <Spinner style={{ marginVertical: 10 }} />;
+        }
+        return (
+            <Row style={{ backgroundColor: LIGHT_GRAY, padding: 10, paddingHorizontal: 20, justifyContent: 'flex-end', }}>
+                <Button
+                    containerStyle={{ 
+                        backgroundColor: onConfirm ? null : ORANGE, 
+                        paddingVertical: 8, 
+                        paddingHorizontal: 10, 
+                        borderRadius: 5, 
+                        marginLeft: 5 
+                    }}
+                    textStyle={{ color: onConfirm ? GRAY : '#FFF' }}
+                    onPress={onClose}
+                >
+                    CLOSE
+                </Button>
+                {status === 1 ? <Button
+                    containerStyle={{ backgroundColor: DARK_RED, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
+                    textStyle={{ color: '#FFF' }}
+                    onPress={onCancel}
+                >
+                    CANCEL
+                </Button> : <View />}
+                {onConfirm ?
+                <Button
+                    containerStyle={{ backgroundColor: ORANGE, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
+                    textStyle={{ color: '#FFF' }}
+                    onPress={onConfirm}
+                >
+                    {this.selectText()}
+                </Button> : <View />}
+            </Row>
+        );
+    }
+
+    render() {
+        const { 
+            data,
+            visible,
+        } = this.props;
+        const { customer, menus, total = 0, } = data;
         return (
             <Modal
                 animationType='slide'
@@ -54,41 +97,14 @@ class OrderDetailPopup extends React.Component {
                             <View style={{ borderTopWidth: 1, margin: 10, paddingTop: 10, }}>
                                 <Row>
                                     <Text style={{ fontWeight: 'bold', color: ORANGE, fontSize: 18, }}>TOTAL</Text>
-                                    <Text style={{ flex: 1, fontWeight: 'bold', color: ORANGE, textAlign: 'right', fontSize: 18, }}>{total.toFixed(2)} THB</Text>
+                                    <Text style={{ flex: 1, fontWeight: 'bold', color: ORANGE, textAlign: 'right', fontSize: 18, }}>
+                                        {total.toFixed(2)} THB
+                                    </Text>
                                 </Row>
                                 <CustomerDetail data={customer} />
                             </View>
                         </View>
-                        <Row style={{ backgroundColor: LIGHT_GRAY, padding: 10, paddingHorizontal: 20, justifyContent: 'flex-end', }}>
-                            <Button
-                                containerStyle={{ 
-                                    backgroundColor: onConfirm ? null : ORANGE, 
-                                    paddingVertical: 8, 
-                                    paddingHorizontal: 10, 
-                                    borderRadius: 5, 
-                                    marginLeft: 5 
-                                }}
-                                textStyle={{ color: onConfirm ? GRAY : '#FFF' }}
-                                onPress={onClose}
-                            >
-                                CLOSE
-                            </Button>
-                            {status === 1 ? <Button
-                                containerStyle={{ backgroundColor: DARK_RED, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
-                                textStyle={{ color: '#FFF' }}
-                                onPress={onCancel}
-                            >
-                                CANCEL
-                            </Button> : <View />}
-                            {onConfirm ?
-                            <Button
-                                containerStyle={{ backgroundColor: ORANGE, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 5, marginLeft: 5 }}
-                                textStyle={{ color: '#FFF' }}
-                                onPress={onConfirm}
-                            >
-                                {this.selectText()}
-                            </Button> : <View />}
-                        </Row>
+                        {this.renderSpinner()}
                     </View>
                 </Center>
             </Modal>

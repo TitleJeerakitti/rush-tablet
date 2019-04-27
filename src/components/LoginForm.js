@@ -9,12 +9,21 @@ import {
     Platform, 
     ActivityIndicator,
     AsyncStorage, 
+    Alert,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { AuthBackground, Row, Center, Input } from './common';
 import { DARK_RED } from '../colors';
-import { SERVER, LOG_IN, CLIENT_SECRET, CLIENT_ID, CONTENT_TYPE_JSON_HEADERS, TOKEN_LOGIN, AUTH_HEADER } from '../config';
+import { 
+    SERVER, 
+    LOG_IN, 
+    CLIENT_SECRET, 
+    CLIENT_ID, 
+    CONTENT_TYPE_JSON_HEADERS, 
+    TOKEN_LOGIN, 
+    AUTH_HEADER 
+} from '../config';
 import { authUserLogin, authTokenLogin, } from '../actions';
 
 class LoginForm extends React.Component {
@@ -43,11 +52,10 @@ class LoginForm extends React.Component {
             const storageToken = await AsyncStorage.getItem('token');
             const token = await JSON.parse(storageToken);
             if (token !== null) {
-                console.log(token);
                 this.tokenLoginAPI(token);
             }
         } catch (error) {
-            console.log(error);
+            Alert.alert('Cannot get your profile!');
         }
     }
 
@@ -55,7 +63,7 @@ class LoginForm extends React.Component {
         try {
             await AsyncStorage.setItem('token', JSON.stringify(token));
         } catch (error) {
-            console.log(error);
+            Alert.alert('Cannot save your profile!');
         }
     }
 
@@ -94,7 +102,7 @@ class LoginForm extends React.Component {
                 });
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -105,16 +113,14 @@ class LoginForm extends React.Component {
                 headers: AUTH_HEADER(token_type, access_token),
             });
             if (this._isMounted && response.status === 200) {
-                console.log(200, 'access_pass');
                 const responseData = await response.json();
                 this.props.authTokenLogin(responseData.user_info, token);
                 Actions.replace('app');
             } else {
-                console.log(response.status);
                 this.refreshTokenAPI(token);
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -131,14 +137,13 @@ class LoginForm extends React.Component {
                 }),
             });
             if (this._isMounted && response.status === 200) {
-                console.log(200, 'store');
                 const responseData = await response.json(); 
                 await this.storeData(responseData.token);
                 this.props.authUserLogin(responseData);
                 Actions.replace('app');
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 

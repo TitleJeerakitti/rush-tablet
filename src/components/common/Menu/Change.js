@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements';
 import { Center } from '../Center';
 import { Row } from '../Row';
 import { GRAY, ORANGE, LIGHT_GRAY } from '../../../colors';
+import { Spinner } from '../Spinner';
 
 class Change extends React.Component {
     constructor(props) {
@@ -76,6 +77,29 @@ class Change extends React.Component {
         }
     }
 
+    renderSpinner() {
+        if (this.props.loading) {
+            return <Spinner style={{ marginVertical: 10, }} />;
+        }
+        return (
+            <Row style={{ width: 280, justifyContent: 'flex-end' }}>
+                <TouchableOpacity 
+                    style={styles.cancelButton} 
+                    onPress={this.props.onCancel}
+                >
+                    <Text style={styles.cancelText}>CANCEL</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={styles.orangeButton}
+                    onPress={parseFloat(this.state.pay) >= parseFloat(this.props.total) ? 
+                        this.props.onPay : () => null}
+                >
+                    <Text style={styles.orangeButtonText}>PAY</Text>
+                </TouchableOpacity>
+            </Row>
+        );
+    }
+
     renderButton(arr) {
         return arr.map((item, index) => 
             <TouchableOpacity 
@@ -137,20 +161,7 @@ class Change extends React.Component {
                         </TouchableOpacity>
                     </Row>
                     <View style={{ alignItems: 'center', }}>
-                        <Row style={{ width: 280, justifyContent: 'flex-end' }}>
-                            <TouchableOpacity 
-                                style={styles.cancelButton} 
-                                onPress={this.props.onCancel}
-                            >
-                                <Text style={styles.cancelText}>CANCEL</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={styles.orangeButton}
-                                onPress={parseFloat(this.state.pay) >= parseFloat(this.props.total) ? this.props.onPay : () => null}
-                            >
-                                <Text style={styles.orangeButtonText}>PAY</Text>
-                            </TouchableOpacity>
-                        </Row>
+                        {this.renderSpinner()}
                     </View>
                 </View>
             );

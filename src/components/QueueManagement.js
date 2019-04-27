@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import { 
     Row, 
@@ -48,6 +48,12 @@ class QueueManagement extends React.Component {
         this._isMounted = false;
     }
 
+    onCallQueueAgain(onlineOrder) {
+        if (onlineOrder.length > 0) {
+            this.callQueueAPI(onlineOrder[0].queue_number);
+        }
+    }
+
     async fetchDataAPI(endpoint) {
         try {
             const { token_type, access_token } = this.props.token;
@@ -57,7 +63,7 @@ class QueueManagement extends React.Component {
             const responseData = await response.json();
             return responseData;
         } catch (error) {
-            console.log(error);
+            Alert.alert('Unstable Network!');
             return [];
         }
     }
@@ -65,22 +71,15 @@ class QueueManagement extends React.Component {
     async callQueueAPI(queue_number) {
         try {
             const { token_type, access_token } = this.props.token;
-            const response = await fetch(`${SERVER}${CALL_QUEUE}`, {
+            await fetch(`${SERVER}${CALL_QUEUE}`, {
                 method: 'POST',
                 headers: AUTH_HEADER(token_type, access_token),
                 body: JSON.stringify({
                     queue_number,
                 })
             });
-            console.log(response.status);
         } catch (error) {
-            console.log(error);
-        }
-    }
-
-    onCallQueueAgain(onlineOrder) {
-        if (onlineOrder.length > 0) {
-            this.callQueueAPI(onlineOrder[0].queue_number);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -111,7 +110,7 @@ class QueueManagement extends React.Component {
                         colors={[ORANGE, YELLOW]}
                         buttonColor={YELLOW}
                         onAgain={() => this.onCallQueueAgain(onlineOrder)}
-                        onNext={() => console.log('Next')}
+                        // onNext={() => console.log('Next')}
                     />
                     <ContainerBorderRadiusTop>
                         <Text style={styles.textDescription}>Passed Queue</Text>
@@ -142,8 +141,8 @@ class QueueManagement extends React.Component {
                         queue={walkinOrder.length > 0 ? walkinOrder[0].queue_number : 'NO QUEUE'}
                         colors={[BLACK_PINK, PINK]}
                         buttonColor={PINK}
-                        onAgain={() => console.log('Again')}
-                        onNext={() => console.log('Next')}
+                        // onAgain={() => console.log('Again')}
+                        // onNext={() => console.log('Next')}
                     />
                     <ContainerBorderRadiusTop>
                         <Text style={styles.textDescription}>Passed Queue</Text>
@@ -151,7 +150,6 @@ class QueueManagement extends React.Component {
                             emptyText='EMPTY QUEUE'
                             condition={walkinOrder.length > 0}
                         >
-                            {/* {this.renderQueueList(walkinOrder, BLACK_PINK, PINK, WALKIN_QUEUE)} */}
                             <FlatList 
                                 style={{ padding: 5, }}
                                 data={walkinOrder}

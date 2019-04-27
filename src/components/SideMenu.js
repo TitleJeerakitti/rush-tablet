@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Dimensions, Image, TouchableOpacity, AsyncStorage } from 'react-native';
+import { View, Text, Dimensions, Image, TouchableOpacity, AsyncStorage, Alert } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { Constants, LinearGradient, Permissions, Notifications } from 'expo';
@@ -43,7 +43,6 @@ class SideMenu extends React.Component {
     async onLogoutAPI() {
         try {
             const { token_type, access_token } = this.props.token;
-            console.log(token_type, access_token);
             const response = await fetch(`${SERVER}${LOG_OUT}`, {
                 method: 'POST',
                 headers: AUTH_HEADER(token_type, access_token),
@@ -55,14 +54,13 @@ class SideMenu extends React.Component {
                 })
             });
             // const responseData = await response.json();
-            console.log(response.status)
             if (this._isMounted && response.status === 200) {
                 this.removeItem();
                 Actions.reset('auth');
                 this.props.authUserLogout();
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -70,7 +68,7 @@ class SideMenu extends React.Component {
         try {
             await AsyncStorage.removeItem('token');
         } catch (error) {
-            console.log(error);
+            Alert.alert('Cannot remove your authentication');
         }
     }
 

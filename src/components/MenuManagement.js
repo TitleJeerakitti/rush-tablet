@@ -4,7 +4,14 @@ import { connect } from 'react-redux';
 import { Permissions, ImagePicker } from 'expo';
 import { Row, MenuNumItem, AddButton, MenuManageContainer } from './common';
 import { DARK_RED, ORANGE, YELLOW, BLACK_PINK, PINK, BLACK_RED, } from '../colors';
-import { SERVER, GET_API_HEADERS, AUTH_HEADER, MENU_MODIFY, GET_MAIN_MENU, MAIN_CATEGORY_MODIFY, SUB_CATEGORY_MODIFY, } from '../config';
+import { 
+    SERVER, 
+    AUTH_HEADER, 
+    MENU_MODIFY, 
+    GET_MAIN_MENU, 
+    MAIN_CATEGORY_MODIFY, 
+    SUB_CATEGORY_MODIFY, 
+} from '../config';
 import { RestaurantPopup, CategoryDetail } from './common/Popup';
 import { restaurantCollect } from '../actions';
 
@@ -73,9 +80,17 @@ class MenuManagement extends React.Component {
                 is_display: false,
                 sub_category_id: currentCategory.id,
             };
-            const result = await this.fetchDataAPI(SUB_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
-            if (result.status === 200) {
-                this._isMounted && this.setState({ currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
+            const result = await this.fetchDataAPI(
+                SUB_CATEGORY_MODIFY, 
+                'POST', 
+                JSON.stringify(data)
+            );
+            if (this._isMounted && result.status === 200) {
+                this.setState({ 
+                    currentSub: null, 
+                    currentMenu: INITIAL_MENU, 
+                    currentCategory: null 
+                });
                 this.refreshMenuList();
             }
         } else {
@@ -84,9 +99,18 @@ class MenuManagement extends React.Component {
                 name: currentCategory.name,
                 is_display: false,
             };
-            const result = await this.fetchDataAPI(MAIN_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
-            if (result.status === 200) {
-                this._isMounted && this.setState({ currentMain: null, currentSub: null, currentMenu: INITIAL_MENU, currentCategory: null });
+            const result = await this.fetchDataAPI(
+                MAIN_CATEGORY_MODIFY, 
+                'POST', 
+                JSON.stringify(data)
+            );
+            if (this._isMounted && result.status === 200) {
+                this.setState({ 
+                    currentMain: null, 
+                    currentSub: null, 
+                    currentMenu: INITIAL_MENU, 
+                    currentCategory: null 
+                });
                 this.refreshMenuList();
             }
         }
@@ -100,9 +124,13 @@ class MenuManagement extends React.Component {
                 is_display: true,
                 sub_category_id: currentCategory.id,
             };
-            const result = await this.fetchDataAPI(SUB_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
-            if (result.status === 200) {
-                this._isMounted && this.setState({ currentCategory: null });
+            const result = await this.fetchDataAPI(
+                SUB_CATEGORY_MODIFY, 
+                'POST', 
+                JSON.stringify(data)
+            );
+            if (this._isMounted && result.status === 200) {
+                this.setState({ currentCategory: null });
                 this.refreshMenuList();
             }
         } else {
@@ -111,9 +139,13 @@ class MenuManagement extends React.Component {
                 name: currentCategory.name,
                 is_display: true,
             };
-            const result = await this.fetchDataAPI(MAIN_CATEGORY_MODIFY, 'POST', JSON.stringify(data));
-            if (result.status === 200) {
-                this._isMounted && this.setState({ currentCategory: null });
+            const result = await this.fetchDataAPI(
+                MAIN_CATEGORY_MODIFY, 
+                'POST',
+                JSON.stringify(data)
+            );
+            if (this._isMounted && result.status === 200) {
+                this.setState({ currentCategory: null });
                 this.refreshMenuList();
             }
         }
@@ -165,24 +197,6 @@ class MenuManagement extends React.Component {
         }
     }
 
-    async selectPhoto() {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            base64: true,
-            allowsEditing: true,
-            aspect: [1, 1],
-        });
-        const imageUri = `data:image/jpg;base64,${result.base64}`;
-        if (this._isMounted) {
-            this.setState({ imageURL: imageUri, });
-        }
-    }
-
-    async selectCategory(data) {
-        if (this._isMounted) {
-            await this.setState({ currentCategory: { ...INITIAL_CATEGORY, ...data } });
-        }
-    }
-
     setSelect(condition, index, item) {
         if (this._isMounted) {
             switch (condition) {
@@ -209,6 +223,24 @@ class MenuManagement extends React.Component {
         }
     }
 
+    async selectPhoto() {
+        const result = await ImagePicker.launchImageLibraryAsync({
+            base64: true,
+            allowsEditing: true,
+            aspect: [1, 1],
+        });
+        const imageUri = `data:image/jpg;base64,${result.base64}`;
+        if (this._isMounted) {
+            this.setState({ imageURL: imageUri, });
+        }
+    }
+
+    async selectCategory(data) {
+        if (this._isMounted) {
+            await this.setState({ currentCategory: { ...INITIAL_CATEGORY, ...data } });
+        }
+    }
+
     async fetchDataAPI(endpoint, method = 'GET', body = null) {
         try {
             const { token_type, access_token } = this.props.token;
@@ -219,7 +251,7 @@ class MenuManagement extends React.Component {
             });
             return response;
         } catch (error) {
-            console.log(error);
+            Alert.alert('Unstable Network!');
             return [];
         }
     }
@@ -268,7 +300,11 @@ class MenuManagement extends React.Component {
                 <RestaurantPopup 
                     visible={visible}
                     menu={currentMenu}
-                    onCancel={() => this._isMounted && this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null })}
+                    onCancel={() => this._isMounted && this.setState({ 
+                        visible: false, 
+                        currentMenu: INITIAL_MENU, 
+                        imageURL: null 
+                    })}
                     onSave={() => {
                         this.renderAnimation();
                         this.onCreateUpdate(this.state.currentMenu);
@@ -280,7 +316,6 @@ class MenuManagement extends React.Component {
                             [
                                 {
                                     text: 'Cancel',
-                                    onPress: () => console.log('Cancel Pressed'),
                                     style: 'cancel',
                                 },
                                 { 
@@ -356,12 +391,17 @@ class MenuManagement extends React.Component {
                     colors={[ORANGE, YELLOW]}
                 >
                     {this.renderMenuItem(
-                        currentSub !== null ? menus[currentMain].sub_categories[currentSub].menus : undefined,
+                        currentSub !== null ? 
+                            menus[currentMain].sub_categories[currentSub].menus : undefined,
                         ORANGE,
                         MENU_SELECT,
                     )}
                     <AddButton 
-                        onPress={() => this._isMounted && this.setState({ visible: true, currentMenu: INITIAL_MENU, imageURL: null, })}
+                        onPress={() => this._isMounted && this.setState({ 
+                            visible: true, 
+                            currentMenu: INITIAL_MENU, 
+                            imageURL: null, 
+                        })}
                     />
                 </MenuManageContainer>
                 {this.renderPopup()}
@@ -379,7 +419,6 @@ class MenuManagement extends React.Component {
                             [
                                 {
                                     text: 'Cancel',
-                                    onPress: () => console.log('Cancel Pressed'),
                                     style: 'cancel',
                                 },
                                 { 

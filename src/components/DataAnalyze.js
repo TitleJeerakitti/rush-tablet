@@ -1,12 +1,22 @@
 import React from 'react';
-import { View, UIManager, LayoutAnimation, Platform, Text, FlatList, } from 'react-native';
+import { View, UIManager, LayoutAnimation, Platform, Text, FlatList, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import { Icon } from 'react-native-elements';
 import PureChart from 'react-native-pure-chart';
 import moment from 'moment';
-import { SearchBar, Row, CardSection, RankingState, Center, MenuRankingCard, Space, OrderItem, RevenueCard } from './common';
+import { 
+    SearchBar, 
+    Row, 
+    CardSection, 
+    RankingState, 
+    Center, 
+    MenuRankingCard, 
+    OrderItem, 
+    RevenueCard, 
+    LoadingImage 
+} from './common';
 import { SERVER, GET_REPORT, AUTH_HEADER, GET_ORDER_DETAIL } from '../config';
-import { GRAY, LIGHT_GRAY, EGG, LIGHT_YELLOW, ORANGE, BLACK_PINK } from '../colors';
+import { GRAY, ORANGE, } from '../colors';
 import { OrderDetailPopup } from './common/Popup';
 
 const CHOICE = [
@@ -52,6 +62,7 @@ class DataAnalyze extends React.Component {
             summary: undefined,
             orderDetail: {},
             isShowDetail: false,
+            loading: false,
         };
     }
 
@@ -65,6 +76,8 @@ class DataAnalyze extends React.Component {
 
     async getReport() {
         try {
+            this.renderAnimation();
+            this.setState({ loading: true, });
             const { token_type, access_token } = this.props.token;
             const response = await fetch(`${SERVER}${GET_REPORT}`, {
                 method: 'POST',
@@ -76,7 +89,6 @@ class DataAnalyze extends React.Component {
                 }),
             });
             const responseData = await response.json();
-            // console.log(responseData);
             if (this._isMounted && response.status === 200) {
                 this.renderAnimation();
                 this.setState({
@@ -84,10 +96,12 @@ class DataAnalyze extends React.Component {
                     top_menu: responseData.top_menu,
                     order: responseData.order,
                     summary: responseData.summary,
+                    loading: false,
                 });
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Your network is unstable!');
+            this.setState({ loading: false, });
         }
     }
 
@@ -105,7 +119,7 @@ class DataAnalyze extends React.Component {
                 });
             }
         } catch (err) {
-            console.log(err);
+            Alert.alert('Unstable Network!');
         }
     }
 
@@ -145,11 +159,21 @@ class DataAnalyze extends React.Component {
         }
     }
 
-    renderAnimation() {
-        LayoutAnimation.easeInEaseOut();
-        if (Platform.OS === 'android') {
-            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
-        }
+    createDataSets() {
+        const result = this.state.total.reduce((arr, item) => {
+            arr.push({
+                x: item.timestamp,
+                y: item.total,
+            });
+            return arr;
+        }, []);
+        return [
+            {
+            //   seriesName: 'series1',
+              data: result,
+              color: ORANGE
+            }
+        ];
     }
 
     renderOtherMenu() {
@@ -303,21 +327,11 @@ class DataAnalyze extends React.Component {
         );
     }
 
-    createDataSets() {
-        const result = this.state.total.reduce((arr, item) => {
-            arr.push({
-                x: item.timestamp,
-                y: item.total,
-            });
-            return arr;
-        }, []);
-        return [
-            {
-            //   seriesName: 'series1',
-              data: result,
-              color: ORANGE
-            }
-        ];
+    renderAnimation() {
+        LayoutAnimation.easeInEaseOut();
+        if (Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+        }
     }
 
     renderGraph() {
@@ -329,7 +343,9 @@ class DataAnalyze extends React.Component {
                             <Text style={{ fontWeight: 'bold' }}>CHART</Text>
                         </CardSection>
                         <View style={{ marginHorizontal: 10, marginTop: 5, padding: 10, }}>
-                            <Text style={{ fontWeight: 'bold', fontSize: 10, marginBottom: 5, }}>TOTAL REVENUE (THB)</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 10, marginBottom: 5, }}>
+                                TOTAL REVENUE (THB)
+                            </Text>
                             <PureChart 
                                 data={this.createDataSets()} 
                                 type='bar'
@@ -349,6 +365,30 @@ class DataAnalyze extends React.Component {
                 </View>
             );
         }
+    }
+
+    renderLoading() {
+        if (this.state.loading) {
+            return <LoadingImage />;
+        }
+        return (
+            <Row style={{ flex: 1, }}>
+                <View style={{ flex: 2, ...styles.container, }}>
+                    <CardSection>
+                        <Text style={{ fontWeight: 'bold' }}>MENU RANKING</Text>
+                    </CardSection>
+                    { this.renderMenuRanking() }
+                </View>
+                <View style={{ flex: 3, ...styles.container, }}>
+                    <CardSection>
+                        <Text style={{ fontWeight: 'bold' }}>REVENUE</Text>
+                    </CardSection>
+                    {this.renderRevenue()}
+                    {this.renderOrderHistory()}
+                    {this.renderGraph()}
+                </View>
+            </Row>
+        );
     }
 
     render() {
@@ -382,7 +422,11 @@ class DataAnalyze extends React.Component {
                     onPressEndDate={() => this.openDateTimePicker('end_date')}
                     onConfirm={this.changeDate.bind(this)}
                     onCancel={() => this.closeDateTimePicker()}
-                    onSearch={() => this.getReport()}
+                    onSearch={() => {
+                        if (this.state.start_date !== null && this.state.status !== null) {
+                            this.getReport();
+                        }
+                    }}
 
                     onYearChange={(value) => {
                         if (this._isMounted) {
@@ -411,26 +455,20 @@ class DataAnalyze extends React.Component {
                     }}
                     month={this.state.month}
                 />
-                <Row style={{ flex: 1, }}>
-                    <View style={{ flex: 2, marginHorizontal: 10, backgroundColor: '#FFF', borderTopLeftRadius: 10, borderTopRightRadius: 10, }}>
-                        <CardSection>
-                            <Text style={{ fontWeight: 'bold' }}>MENU RANKING</Text>
-                        </CardSection>
-                        { this.renderMenuRanking() }
-                    </View>
-                    <View style={{ flex: 3, marginHorizontal: 10, backgroundColor: '#FFF', borderTopLeftRadius: 10, borderTopRightRadius: 10, }}>
-                        <CardSection>
-                            <Text style={{ fontWeight: 'bold' }}>REVENUE</Text>
-                        </CardSection>
-                        {this.renderRevenue()}
-                        {this.renderOrderHistory()}
-                        {this.renderGraph()}
-                    </View>
-                </Row>
+                {this.renderLoading()}
             </View>
         );
     }
 }
+
+const styles = {
+    container: {
+        marginHorizontal: 10, 
+        backgroundColor: '#FFF', 
+        borderTopLeftRadius: 10, 
+        borderTopRightRadius: 10,
+    }
+};
 
 const mapStateToProps = ({ auth, }) => {
     const { token } = auth;
