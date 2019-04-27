@@ -5,3 +5,7 @@ npm-debug.*
 *.p12
 *.key
 *.mobileprovision
+src/images
+src/test-json-api
+\.DS_Store
+assets
