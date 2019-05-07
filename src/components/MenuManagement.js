@@ -46,6 +46,7 @@ class MenuManagement extends React.Component {
             imageURL: null,
             menus: [],
             visible: false,
+            loading: false,
         };
     }
 
@@ -252,6 +253,7 @@ class MenuManagement extends React.Component {
             return response;
         } catch (error) {
             Alert.alert('Unstable Network!');
+            this.setState({ loading: false, });
             return [];
         }
     }
@@ -260,7 +262,7 @@ class MenuManagement extends React.Component {
         const response = await this.fetchDataAPI(GET_MAIN_MENU);
         const responseData = await response.json();
         if (response.status === 200) {
-            this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null });
+            this.setState({ visible: false, currentMenu: INITIAL_MENU, imageURL: null, loading: false });
             this.props.restaurantCollect(responseData);
             this.componentDidMount();
         }
@@ -294,10 +296,11 @@ class MenuManagement extends React.Component {
     }
 
     renderPopup() {
-        const { currentMenu, visible } = this.state;
+        const { currentMenu, visible, loading } = this.state;
         if (currentMenu !== undefined) {
             return (
                 <RestaurantPopup 
+                    loading={loading}
                     visible={visible}
                     menu={currentMenu}
                     onCancel={() => this._isMounted && this.setState({ 
@@ -307,6 +310,7 @@ class MenuManagement extends React.Component {
                     })}
                     onSave={() => {
                         this.renderAnimation();
+                        this.setState({ loading: true });
                         this.onCreateUpdate(this.state.currentMenu);
                     }}
                     onDelete={() => {
@@ -322,6 +326,7 @@ class MenuManagement extends React.Component {
                                     text: 'Confirm', 
                                     onPress: () => {
                                         this.renderAnimation();
+                                        this.setState({ loading: true });
                                         this.onDelete(this.state.currentMenu);
                                     }
                                 },
@@ -349,7 +354,7 @@ class MenuManagement extends React.Component {
     }
 
     render() {
-        const { menus, currentMain, currentSub, } = this.state;
+        const { menus, currentMain, currentSub, loading } = this.state;
         return (
             <Row style={{ flex: 1, }}>
                 <MenuManageContainer
@@ -406,6 +411,7 @@ class MenuManagement extends React.Component {
                 </MenuManageContainer>
                 {this.renderPopup()}
                 <CategoryDetail 
+                    loading={loading}
                     visible={this.state.currentCategory !== null} 
                     data={this.state.currentCategory}
                     onChangeText={(text) => this._isMounted && this.setState({ currentCategory: {
@@ -423,14 +429,22 @@ class MenuManagement extends React.Component {
                                 },
                                 { 
                                     text: 'Confirm', 
-                                    onPress: () => this.onDeleteCategory(this.state.currentCategory) 
+                                    onPress: () => {
+                                        this.renderAnimation();
+                                        this.setState({ loading: true, });
+                                        this.onDeleteCategory(this.state.currentCategory);
+                                    } 
                                 },
                             ],
                                 { cancelable: false },
                           );
                     }}
                     // this.onDeleteCategory(this.state.currentCategory)
-                    onSave={() => this.onCreateUpdateCategory(this.state.currentCategory)}
+                    onSave={() => {
+                        this.renderAnimation();
+                        this.setState({ loading: true, });
+                        this.onCreateUpdateCategory(this.state.currentCategory);
+                    }}
                 />
             </Row>
         );

@@ -6,6 +6,7 @@ import { InputWithDescription } from './InputWithDescription';
 import { Center } from '../Center';
 import { LIGHT_GRAY, DARK_RED, GRAY, ORANGE } from '../../../colors';
 import { Row } from '../Row';
+import { Spinner } from '../Spinner';
 
 class CategoryDetail extends React.Component {
     renderTrash(data) {
@@ -20,6 +21,51 @@ class CategoryDetail extends React.Component {
         }
     }
 
+    renderSpinner() {
+        const { loadingContainer } = styles;
+        if (this.props.loading) {
+            return (
+                <View style={loadingContainer}>
+                    <Spinner />
+                </View>
+            );
+        }
+        return (
+            <TouchableOpacity style={styles.containerPopUp}>
+                <View style={{ padding: 20, }}>
+                    <InputWithDescription 
+                        title='Category'
+                        placeholder='Category Name'
+                        value={this.props.visible ? this.props.data.name : ''}
+                        onChangeText={this.props.onChangeText}
+                    />
+                </View>
+                <Row 
+                    style={{ 
+                        padding: 20, 
+                        paddingVertical: 10, 
+                        backgroundColor: LIGHT_GRAY, 
+                        justifyContent: 'flex-end' 
+                    }}
+                >
+                    <TouchableOpacity 
+                        style={{ ...styles.buttonStyle }}
+                        onPress={this.props.onCancel}
+                    >
+                        <Text style={{ color: GRAY }}>CANCEL</Text>
+                    </TouchableOpacity>
+                    {this.renderTrash(this.props.data)}
+                    <TouchableOpacity 
+                        style={{ backgroundColor: ORANGE, ...styles.buttonStyle }}
+                        onPress={this.props.onSave}
+                    >
+                        <Text style={{ color: '#FFF' }}>SAVE</Text>
+                    </TouchableOpacity>
+                </Row>
+            </TouchableOpacity>
+        );
+    }
+
     render() {
         return (
             <Modal
@@ -32,31 +78,7 @@ class CategoryDetail extends React.Component {
             >
                 <KeyboardAvoidingView style={{ flex: 1, }} behavior='padding' enabled>
                     <Center style={styles.container}>
-                        <TouchableOpacity style={styles.containerPopUp}>
-                            <View style={{ padding: 20, }}>
-                                <InputWithDescription 
-                                    title='Category'
-                                    placeholder='Category Name'
-                                    value={this.props.visible ? this.props.data.name : ''}
-                                    onChangeText={this.props.onChangeText}
-                                />
-                            </View>
-                            <Row style={{ padding: 20, paddingVertical: 10, backgroundColor: LIGHT_GRAY, justifyContent: 'flex-end' }}>
-                                <TouchableOpacity 
-                                    style={{ ...styles.buttonStyle }}
-                                    onPress={this.props.onCancel}
-                                >
-                                    <Text style={{ color: GRAY }}>CANCEL</Text>
-                                </TouchableOpacity>
-                                {this.renderTrash(this.props.data)}
-                                <TouchableOpacity 
-                                    style={{ backgroundColor: ORANGE, ...styles.buttonStyle }}
-                                    onPress={this.props.onSave}
-                                >
-                                    <Text style={{ color: '#FFF' }}>SAVE</Text>
-                                </TouchableOpacity>
-                            </Row>
-                        </TouchableOpacity>
+                        {this.renderSpinner()}
                     </Center>
                 </KeyboardAvoidingView>
             </Modal>
@@ -85,6 +107,17 @@ const styles = {
         paddingVertical: 5, 
         borderRadius: 5, 
         marginLeft: 5,
+    },
+    loadingContainer: { 
+        padding: 30, 
+        backgroundColor: 'white', 
+        borderRadius: 10, 
+        shadowOffset: {
+            width: 0, 
+            height: 2
+        }, 
+        shadowRadius: 10, 
+        shadowOpacity: 0.1 
     }
 };
 
