@@ -38,7 +38,7 @@ const MenuItem = ({ onPress, data }) => {
                         <Text 
                             style={{ color: ORANGE, fontWeight: 'bold', }}
                         >
-                            {data.price} THB
+                            {data.price.toFixed(2)} THB
                         </Text>
                     </View>
                 </Row>

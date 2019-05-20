@@ -10,11 +10,12 @@ import {
     ActivityIndicator,
     AsyncStorage, 
     Alert,
+    Linking
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import { AuthBackground, Row, Center, Input } from './common';
-import { DARK_RED } from '../colors';
+import { DARK_RED, YELLOW } from '../colors';
 import { 
     SERVER, 
     LOG_IN, 
@@ -22,7 +23,8 @@ import {
     CLIENT_ID, 
     CONTENT_TYPE_JSON_HEADERS, 
     TOKEN_LOGIN, 
-    AUTH_HEADER 
+    AUTH_HEADER, 
+    REGISTER_LINK
 } from '../config';
 import { authUserLogin, authTokenLogin, } from '../actions';
 
@@ -31,8 +33,8 @@ class LoginForm extends React.Component {
         super(props);
         this._isMounted = false;
         this.state = {
-            username: 'sivakornterk',
-            password: 'Terk1234',
+            username: '',
+            password: '',
             error: '',
             isLoading: false,
         };
@@ -221,6 +223,13 @@ class LoginForm extends React.Component {
                             {this.state.error}
                         </Text>
                         {this.renderIndicator()}
+                        <TouchableOpacity
+                            activeOpacity={1}
+                            style={{ ...styles.buttonStyle, backgroundColor: YELLOW }}
+                            onPress={() => Linking.openURL(`${SERVER}${REGISTER_LINK}`)}
+                        >
+                            <Text style={styles.textWhite}>Register</Text>
+                        </TouchableOpacity>
                     </Center>
                 </Row>
             </AuthBackground>

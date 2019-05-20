@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "rush-restaurant",
+    "name": "rush restaurant",
     "slug": "rush-restaurant",
     "privacy": "public",
     "sdkVersion": "32.0.0",
@@ -23,7 +23,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rush.rushRestaurant"
+    },
+    "android": {
+      "package": "com.rush.rushRestaurant"
     }
   }
 }

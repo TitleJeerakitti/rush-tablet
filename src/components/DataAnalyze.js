@@ -392,16 +392,25 @@ class DataAnalyze extends React.Component {
     }
 
     render() {
+        const { 
+            start_date, 
+            status, 
+            end_date, 
+            isDateTimePickerVisible, 
+            select, 
+            year, 
+            month, 
+        } = this.state;
         return (
             <View style={{ flex: 1, }}>
                 <SearchBar 
                     placeholder={placeholder}
                     choice={CHOICE}
-                    status={this.state.status} 
-                    start_date={this.state.start_date} 
-                    end_date={this.state.end_date} 
-                    isDateTimePickerVisible={this.state.isDateTimePickerVisible} 
-                    select={this.state.select} 
+                    status={status} 
+                    start_date={start_date} 
+                    end_date={end_date} 
+                    isDateTimePickerVisible={isDateTimePickerVisible} 
+                    select={select} 
                     onValueChange={value => {
                         if (this._isMounted) {
                             this.renderAnimation();
@@ -423,7 +432,10 @@ class DataAnalyze extends React.Component {
                     onConfirm={this.changeDate.bind(this)}
                     onCancel={() => this.closeDateTimePicker()}
                     onSearch={() => {
-                        if (this.state.start_date !== null && this.state.status !== null) {
+                        if ((start_date !== null && status === 1)
+                            || (start_date !== null && end_date !== null && status === 2) 
+                            || (year !== null && month !== null && status === 3)
+                            || (year !== null && status === 4)) {
                             this.getReport();
                         }
                     }}
@@ -440,7 +452,7 @@ class DataAnalyze extends React.Component {
                             });
                         }
                     }}
-                    year={this.state.year}
+                    year={year}
                     onMonthChange={(value) => {
                         if (this._isMounted) {
                             this.renderAnimation();
@@ -453,7 +465,7 @@ class DataAnalyze extends React.Component {
                             });
                         }
                     }}
-                    month={this.state.month}
+                    month={month}
                 />
                 {this.renderLoading()}
             </View>

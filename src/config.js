@@ -19,6 +19,7 @@ export const GET_QUEUE = '/api/restaurant/get-queue/';
 export const GET_REPORT = '/api/restaurant/get-report/';
 export const UPLOAD_EXPO_TOKEN = '/api/upload_expo_token';
 export const CALL_QUEUE = '/api/restaurant/call-queue-again/';
+export const REGISTER_LINK = '/restaurant/register-form';
 // export const RE
 export const ONLINE_QUEUE = 'online_queue';
 export const WALKIN_QUEUE = 'walkin_queue';

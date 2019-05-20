@@ -9,19 +9,107 @@ import { Center } from '../Center';
 import { InputWithDescription } from './InputWithDescription';
 import { Space } from '../Space';
 import { CheckBox } from '../CheckBox';
+import { Spinner } from '../Spinner';
 
 class RestaurantPopup extends React.Component {
-    render() {
+
+    renderSpinner() {
         const { 
-            container, 
             popupContainer, 
             imageStyle, 
             uploadIcon, 
             cancelStyle,
             submitStyle,
+            loadingContainer
         } = styles;
-        const { visible, onCancel, onSave, onChangeName, onChangeOutOfStock, onChangePrice, onDelete, onChangePicture } = this.props;
+        const { 
+            onCancel, 
+            onSave, 
+            onChangeName, 
+            onChangeOutOfStock, 
+            onChangePrice, 
+            onDelete, 
+            onChangePicture,
+            loading
+        } = this.props;
         const { is_out_of_stock, name, price = '0', picture, isNew, } = this.props.menu;
+        if (loading) {
+            return (
+                <View style={loadingContainer}>
+                    <Spinner />
+                </View>
+            );
+        }
+        return (
+            <Row style={popupContainer}>
+                <TouchableOpacity onPress={onChangePicture}>
+                    <Image 
+                        resizeMode='cover'
+                        source={{ uri: this.props.imageURL || picture }} 
+                        style={imageStyle} 
+                    />
+                    <Center style={uploadIcon}>
+                        <Icon 
+                            name='camera' 
+                            type='material-community' 
+                            color='#FFF' 
+                            size={18} 
+                        />
+                    </Center>
+                </TouchableOpacity>
+                <View style={{ flex: 1, marginLeft: 20, }}>
+                    { isNew ? <View /> :
+                    <TouchableOpacity 
+                        style={{ backgroundColor: DARK_RED, borderRadius: 50, padding: 2, alignSelf: 'flex-end', marginBottom: 5, }}
+                        onPress={onDelete}
+                    >
+                        <Icon name='trash-can' type='material-community' size={20} color='white' /> 
+                    </TouchableOpacity>}
+                    <InputWithDescription 
+                        title='Menu Name'
+                        placeholder='Menu Name'
+                        value={name || null}
+                        onChangeText={onChangeName}
+                    />
+                    <InputWithDescription 
+                        title='Price'
+                        placeholder='ex. 100.00'
+                        value={price.toString() || null}
+                        onChangeText={onChangePrice}
+                        style={{ marginTop: 10 }}
+                    />
+                    <Row style={{ marginTop: 20, alignItems: 'center', }}>
+                        <CheckBox 
+                            onPress={onChangeOutOfStock} 
+                            title='Out of Stock'
+                            isCheck={is_out_of_stock}
+                        />
+                        <Space />
+                        <Button 
+                            containerStyle={cancelStyle}
+                            textStyle={{ color: GRAY }}
+                            hideOpacity
+                            onPress={onCancel}
+                        >
+                            CANCEL
+                        </Button>
+                        <Button 
+                            containerStyle={submitStyle}
+                            textStyle={{ color: '#FFF' }}
+                            hideOpacity
+                            onPress={onSave}
+                        >
+                            SAVE
+                        </Button>
+                    </Row>
+                </View>
+            </Row>
+        );
+    }
+
+    render() {
+        const { container, } = styles;
+        const { visible, } = this.props;
         // console.log(this.props.menu)
         return (
             <Modal
@@ -34,69 +122,7 @@ class RestaurantPopup extends React.Component {
             >
                 <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding' enabled>
                     <Center style={container}>
-                        <Row style={popupContainer}>
-                            <TouchableOpacity onPress={onChangePicture}>
-                                <Image 
-                                    resizeMode='cover'
-                                    source={{ uri: this.props.imageURL || picture }} 
-                                    style={imageStyle} 
-                                />
-                                <Center style={uploadIcon}>
-                                    <Icon 
-                                        name='camera' 
-                                        type='material-community' 
-                                        color='#FFF' 
-                                        size={18} 
-                                    />
-                                </Center>
-                            </TouchableOpacity>
-                            <View style={{ flex: 1, marginLeft: 20, }}>
-                                { isNew ? <View /> :
-                                <TouchableOpacity 
-                                    style={{ backgroundColor: DARK_RED, borderRadius: 50, padding: 2, alignSelf: 'flex-end', marginBottom: 5, }}
-                                    onPress={onDelete}
-                                >
-                                    <Icon name='trash-can' type='material-community' size={20} color='white' /> 
-                                </TouchableOpacity>}
-                                <InputWithDescription 
-                                    title='Menu Name'
-                                    placeholder='Menu Name'
-                                    value={name || null}
-                                    onChangeText={onChangeName}
-                                />
-                                <InputWithDescription 
-                                    title='Price'
-                                    placeholder='ex. 100.00'
-                                    value={price.toString() || null}
-                                    onChangeText={onChangePrice}
-                                    style={{ marginTop: 10 }}
-                                />
-                                <Row style={{ marginTop: 20, alignItems: 'center', }}>
-                                    <CheckBox 
-                                        onPress={onChangeOutOfStock} 
-                                        title='Out of Stock'
-                                        isCheck={is_out_of_stock}
-                                    />
-                                    <Space />
-                                    <Button 
-                                        containerStyle={cancelStyle}
-                                        textStyle={{ color: GRAY }}
-                                        hideOpacity
-                                        onPress={onCancel}
-                                    >
-                                        CANCEL
-                                    </Button>
-                                    <Button 
-                                        containerStyle={submitStyle}
-                                        textStyle={{ color: '#FFF' }}
-                                        hideOpacity
-                                        onPress={onSave}
-                                    >
-                                        SAVE
-                                    </Button>
-                                </Row>
-                            </View>
-                        </Row>
+                        {this.renderSpinner()}
                     </Center>
                 </KeyboardAvoidingView>
             </Modal>
@@ -146,6 +172,17 @@ const styles = {
         paddingHorizontal: 20, 
         paddingVertical: 8, 
         borderRadius: 5,
+    },
+    loadingContainer: { 
+        padding: 30, 
+        backgroundColor: 'white', 
+        borderRadius: 10, 
+        shadowOffset: {
+            width: 0, 
+            height: 2
+        }, 
+        shadowRadius: 10, 
+        shadowOpacity: 0.1 
     }
 };
 
