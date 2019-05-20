@@ -21,7 +21,7 @@ const styles = {
     buttonStyle: {
         backgroundColor: '#FFF', 
         padding: 5, 
-        borderRadius: '50%', 
+        borderRadius: 100, 
         shadowOffset: { 
             width: 0, 
             height: 2 

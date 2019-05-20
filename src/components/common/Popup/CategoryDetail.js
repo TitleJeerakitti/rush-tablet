@@ -31,7 +31,7 @@ class CategoryDetail extends React.Component {
             );
         }
         return (
-            <TouchableOpacity style={styles.containerPopUp}>
+            <TouchableOpacity style={styles.containerPopUp} activeOpacity={1}>
                 <View style={{ padding: 20, }}>
                     <InputWithDescription 
                         title='Category'

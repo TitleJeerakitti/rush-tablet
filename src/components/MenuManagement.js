@@ -309,9 +309,12 @@ class MenuManagement extends React.Component {
                         imageURL: null 
                     })}
                     onSave={() => {
-                        this.renderAnimation();
-                        this.setState({ loading: true });
-                        this.onCreateUpdate(this.state.currentMenu);
+                        if (currentMenu.name !== '' && currentMenu.price !== '') {
+                            console.log(currentMenu);
+                            this.renderAnimation();
+                            this.setState({ loading: true });
+                            this.onCreateUpdate(this.state.currentMenu);
+                        }
                     }}
                     onDelete={() => {
                         Alert.alert(
@@ -354,7 +357,7 @@ class MenuManagement extends React.Component {
     }
 
     render() {
-        const { menus, currentMain, currentSub, loading } = this.state;
+        const { menus, currentMain, currentSub, loading, currentCategory } = this.state;
         return (
             <Row style={{ flex: 1, }}>
                 <MenuManageContainer
@@ -412,10 +415,10 @@ class MenuManagement extends React.Component {
                 {this.renderPopup()}
                 <CategoryDetail 
                     loading={loading}
-                    visible={this.state.currentCategory !== null} 
-                    data={this.state.currentCategory}
+                    visible={currentCategory !== null} 
+                    data={currentCategory}
                     onChangeText={(text) => this._isMounted && this.setState({ currentCategory: {
-                        ...this.state.currentCategory, name: text,
+                        ...currentCategory, name: text,
                     } })}
                     onCancel={() => this._isMounted && this.setState({ currentCategory: null })}
                     onDelete={() => {
@@ -432,18 +435,20 @@ class MenuManagement extends React.Component {
                                     onPress: () => {
                                         this.renderAnimation();
                                         this.setState({ loading: true, });
-                                        this.onDeleteCategory(this.state.currentCategory);
+                                        this.onDeleteCategory(currentCategory);
                                     } 
                                 },
                             ],
                                 { cancelable: false },
                           );
                     }}
-                    // this.onDeleteCategory(this.state.currentCategory)
+                    // this.onDeleteCategory(currentCategory)
                     onSave={() => {
-                        this.renderAnimation();
-                        this.setState({ loading: true, });
-                        this.onCreateUpdateCategory(this.state.currentCategory);
+                        if (currentCategory.name !== '') {
+                            this.renderAnimation();
+                            this.setState({ loading: true, });
+                            this.onCreateUpdateCategory(currentCategory);
+                        }
                     }}
                 />
             </Row>
